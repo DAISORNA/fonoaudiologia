@@ -10,7 +10,11 @@ export function showSection(sectionId) {
 
     // Mostrar la sección seleccionada
     const selectedSection = document.getElementById(sectionId);
-    selectedSection.classList.remove('hidden'); // Elimina la clase 'hidden' de la sección seleccionada
+    if (selectedSection) {
+        selectedSection.classList.remove('hidden'); // Elimina la clase 'hidden' de la sección seleccionada
+    } else {
+        console.warn(`Sección con ID '${sectionId}' no encontrada.`);
+    }
 }
 
 // Función para manejar el envío del formulario
@@ -18,6 +22,9 @@ function handleFormSubmission(event) {
     event.preventDefault(); // Evita el envío del formulario
     // Aquí puedes agregar la lógica para manejar los datos del formulario
     console.log("Formulario enviado");
+    // Ejemplo: obtener los datos del formulario
+    const formData = new FormData(event.target);
+    // Puedes procesar los datos como desees aquí
 }
 
 // Inicializa la aplicación al cargar
@@ -36,7 +43,7 @@ function init() {
     }
 
     // Llama a la función para mostrar padecimientos, si es necesario
-    showPadecimientos(); // Asegúrate de definir esta función en este archivo o importarla si es de otro módulo
+    // showPadecimientos(); // Asegúrate de definir esta función en este archivo o importarla si es de otro módulo
 }
 
 // Ejecuta la función de inicialización al cargar el módulo
