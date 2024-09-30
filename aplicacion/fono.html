@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fonoaudiología - Atención Infantil</title>
+    <style>
+        /* CSS integrado en HTML */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #1e90ff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            margin: 20px;
+        }
+
+        button {
+            background-color: #00ced1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #20b2aa;
+        }
+
+        section {
+            display: none;
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 60%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        input:focus {
+            border-color: #00ced1;
+        }
+
+        label {
+            font-size: 14px;
+            margin-top: 10px;
+            display: block;
+            color: #333;
+        }
+
+        form button {
+            background-color: #1e90ff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        form button:hover {
+            background-color: #4169e1;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #resultadosSeguimiento {
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Programa de Atención Infantil en Fonoaudiología</h1>
+    </header>
+    <img src="fono.jpg" alt="Imagen de Fonoaudiología" class="hero-image">
+    <nav>
+        <button class="nav-button" data-section="registro">Registro de Pacientes</button>
+        <button class="nav-button" data-section="evaluacion">Evaluación y Tratamiento</button>
+        <button class="nav-button" data-section="padecimientos">Padecimientos y Terapias</button>
+        <button class="nav-button" data-section="seguimiento">Seguimiento de Pacientes</button>
+    </nav>
+
+    <!-- Sección de Registro -->
+    <section id="registro" class="hidden">
+        <h2>Registro de Pacientes</h2>
+        <form id="formRegistro">
+            <label for="nombre">Nombre del Paciente</label>
+            <input type="text" id="nombre" name="nombre" required>
+
+            <label for="edad">Edad</label>
+            <input type="number" id="edad" name="edad" required>
+
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+
+            <label for="escolaridad">Escolaridad</label>
+            <input type="text" id="escolaridad" name="escolaridad">
+
+            <label for="domicilio">Domicilio</label>
+            <input type="text" id="domicilio" name="domicilio">
+
+            <label for="telefono">Teléfono</label>
+            <input type="tel" id="telefono" name="telefono">
+
+            <label for="acudiente">Acudiente</label>
+            <input type="text" id="acudiente" name="acudiente" required>
+
+            <label for="referencia">Referencia</label>
+            <input type="text" id="referencia" name="referencia">
+
+            <label for="fechaEntrevista">Fecha de Entrevista</label>
+            <input type="date" id="fechaEntrevista" name="fechaEntrevista">
+
+            <label for="motivoConsulta">Motivo de Consulta</label>
+            <textarea id="motivoConsulta" name="motivoConsulta" required></textarea>
+
+            <button type="submit">Registrar Paciente</button>
+        </form>
+    </section>
+
+    <!-- Sección de Evaluación -->
+    <section id="evaluacion" class="hidden">
+        <h2>Evaluación y Tratamiento</h2>
+        <form id="formEvaluacion">
+            <label for="hallazgos">Hallazgos Identificados</label>
+            <textarea id="hallazgos" name="hallazgos" required></textarea>
+
+            <label for="prevencion">Prevención</label>
+            <textarea id="prevencion" name="prevencion"></textarea>
+
+            <label for="evaluacion">Evaluación</label>
+            <textarea id="evaluacion" name="evaluacion"></textarea>
+
+            <label for="tratamiento">Tratamiento</label>
+            <textarea id="tratamiento" name="tratamiento"></textarea>
+
+            <button type="submit">Guardar Evaluación</button>
+        </form>
+    </section>
+
+    <!-- Sección de Padecimientos -->
+    <section id="padecimientos" class="hidden">
+        <h2>Padecimientos y Terapias</h2>
+        <label for="tipoPadecimiento">Selecciona un Padecimiento:</label>
+        <select id="tipoPadecimiento" name="tipoPadecimiento" onchange="loadTherapies(this.value)">
+            <option value="">--Seleccionar--</option>
+            <option value="dislalia">Dislalia</option>
+            <option value="dislexia">Dislexia</option>
+            <option value="tgd">Trastorno del espectro autista</option>
+        </select>
+
+        <div id="terapias"></div>
+    </section>
+
+    <!-- Sección de Seguimiento -->
+    <section id="seguimiento" class="hidden">
+        <h2>Seguimiento de Pacientes</h2>
+        <form id="formSeguimiento">
+            <label for="nombrePaciente">Nombre del Paciente</label>
+            <input type="text" id="nombrePaciente" name="nombrePaciente" required>
+
+            <label for="comentarioSeguimiento">Comentario de Seguimiento</label>
+            <textarea id="comentarioSeguimiento" name="comentarioSeguimiento" required></textarea>
+
+            <button type="button" onclick="guardarSeguimiento()">Guardar Seguimiento</button>
+        </form>
+
+        <div id="resultadosSeguimiento">
+            <h3>Historial de Seguimiento</h3>
+            <ul id="listaSeguimientos"></ul>
+        </div>
+    </section>
+
+    <!-- Importación de scripts modulares -->
+    <script type="module" src="js/navigation.js"></script>
+    <script type="module" src="js/padecimientos.js"></script>
+    <script type="module" src="js/evaluacion.js"></script>
+    <script type="module" src="js/seguimiento.js"></script>
+</body>
+</html>
