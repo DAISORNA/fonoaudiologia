@@ -109,6 +109,11 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
+        #message {
+            color: red;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -198,24 +203,23 @@
     <!-- Sección de Seguimiento -->
     <section id="seguimiento" class="hidden">
         <h2>Seguimiento de Pacientes</h2>
+        <div id="message"></div> <!-- Div para mostrar mensajes -->
         <form id="formSeguimiento">
             <label for="nombrePaciente">Nombre del Paciente</label>
             <input type="text" id="nombrePaciente" name="nombrePaciente" required>
-
+    
             <label for="comentarioSeguimiento">Comentario de Seguimiento</label>
             <textarea id="comentarioSeguimiento" name="comentarioSeguimiento" required></textarea>
-
-            <button type="button" onclick="guardarSeguimiento()">Guardar Seguimiento</button>
+    
+            <button type="submit">Agregar Seguimiento</button> <!-- Cambiado a tipo submit -->
         </form>
-
+        
         <div id="resultadosSeguimiento">
-            <h3>Historial de Seguimiento</h3>
-            <ul id="listaSeguimientos"></ul>
+            <ul id="listaSeguimientos"></ul> <!-- Agrega este elemento para mostrar la lista de seguimientos -->
         </div>
     </section>
 
-    <!-- Importación de scripts modulares -->
-    <script type="module" src="navigation.js"></script>
+    <script type="module" src="navegation.js"></script>
     <script type="module" src="padecimientos.js"></script>
     <script type="module" src="evaluacion.js"></script>
     <script type="module" src="seguimiento.js"></script>

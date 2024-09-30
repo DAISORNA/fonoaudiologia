@@ -14,7 +14,20 @@ document.getElementById('formRegistro').addEventListener('submit', function(even
 
     // Validación básica
     if (!nombre || !edad || !fechaNacimiento || !escolaridad || !domicilio || !telefono || !acudiente || !referencia || !fechaEntrevista || !motivoConsulta) {
-        alert("Por favor, complete todos los campos.");
+        showMessage("Por favor, complete todos los campos.");
+        return;
+    }
+
+    // Validación adicional para la edad (número)
+    if (isNaN(edad) || edad <= 0) {
+        showMessage("Por favor, ingrese una edad válida.");
+        return;
+    }
+
+    // Validación para el teléfono (opcional, dependiendo del formato)
+    const telefonoRegex = /^\d{7,}$/; // Ejemplo: número de 7 dígitos
+    if (!telefonoRegex.test(telefono)) {
+        showMessage("Por favor, ingrese un número de teléfono válido.");
         return;
     }
 
@@ -34,4 +47,14 @@ document.getElementById('formRegistro').addEventListener('submit', function(even
 
     // Limpiar el formulario después de registrar
     document.getElementById('formRegistro').reset();
+    showMessage("Paciente registrado con éxito.");
 });
+
+// Función para mostrar mensajes en la interfaz
+function showMessage(message) {
+    const messageDiv = document.getElementById('message'); // Asegúrate de tener un div en tu HTML para mensajes
+    messageDiv.innerText = message;
+    setTimeout(() => {
+        messageDiv.innerText = ''; // Limpiar mensaje después de 3 segundos
+    }, 3000);
+}

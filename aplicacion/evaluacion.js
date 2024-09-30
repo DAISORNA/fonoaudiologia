@@ -3,13 +3,23 @@
 document.getElementById('formEvaluacion').addEventListener('submit', function(event) { 
     event.preventDefault(); // Evitar el envío del formulario
 
-    const hallazgos = document.getElementById('hallazgosEvaluacion').value; // Asegúrate de que el ID coincida con el HTML
-    const prevencion = document.getElementById('prevencionEvaluacion').value; // Asegúrate de que el ID coincida con el HTML
-    const evaluacion = document.getElementById('evaluacionResultados').value; // Asegúrate de que el ID coincida con el HTML
-    const tratamiento = document.getElementById('tratamientoEvaluacion').value; // Asegúrate de que el ID coincida con el HTML
+    // Obtener valores de los campos
+    const hallazgos = document.getElementById('hallazgosEvaluacion').value.trim();
+    const prevencion = document.getElementById('prevencionEvaluacion').value.trim();
+    const evaluacion = document.getElementById('evaluacionResultados').value.trim();
+    const tratamiento = document.getElementById('tratamientoEvaluacion').value.trim();
+
+    // Validación de campos
+    if (!hallazgos || !prevencion || !evaluacion || !tratamiento) {
+        alert("Por favor, completa todos los campos antes de enviar.");
+        return; // Detener la ejecución si algún campo está vacío
+    }
 
     // Aquí podrías guardar los datos de evaluación
     console.log("Evaluación Guardada:", { hallazgos, prevencion, evaluacion, tratamiento });
+
+    // Mostrar un mensaje de confirmación
+    alert("La evaluación se ha guardado correctamente.");
 
     // Limpiar el formulario después de guardar
     document.getElementById('formEvaluacion').reset();

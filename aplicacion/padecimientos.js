@@ -26,9 +26,26 @@ const padecimientosData = [
     }
 ];
 
+// Función para mostrar mensajes en la interfaz
+function showMessage(message) {
+    const messageDiv = document.getElementById('message'); // Asegúrate de tener un div en tu HTML para mensajes
+    if (messageDiv) {
+        messageDiv.innerText = message;
+        setTimeout(() => {
+            messageDiv.innerText = ''; // Limpiar mensaje después de 3 segundos
+        }, 3000);
+    } else {
+        console.warn("Div para mensajes no encontrado.");
+    }
+}
+
 // Función para cargar terapias según el padecimiento seleccionado
 function loadTherapies(padecimiento) {
     const terapiasDiv = document.getElementById('terapias');
+    if (!terapiasDiv) {
+        console.error("Div para terapias no encontrado.");
+        return;
+    }
     terapiasDiv.innerHTML = ''; // Limpiar contenido previo
 
     const padecimientoSeleccionado = padecimientosData.find(p => p.nombre.toLowerCase() === padecimiento.toLowerCase());
@@ -46,26 +63,36 @@ function loadTherapies(padecimiento) {
 
 // Función para agregar un nuevo padecimiento
 function addPadecimiento(nombre, terapias) {
+    if (!nombre || !terapias) {
+        showMessage("Por favor, completa todos los campos.");
+        return;
+    }
+
     const nuevoPadecimiento = {
         id: padecimientosData.length + 1,
         nombre: nombre,
         terapias: terapias.split(',').map(terapia => terapia.trim()) // Convierte el string en un array
     };
     padecimientosData.push(nuevoPadecimiento);
-    alert(`Padecimiento '${nombre}' agregado.`);
+    showMessage(`Padecimiento '${nombre}' agregado.`);
     console.log(padecimientosData); // Mostrar la lista actualizada en la consola
 }
 
 // Función para editar un padecimiento existente
 function editPadecimiento(id, nuevoNombre, nuevasTerapias) {
+    if (!nuevoNombre || !nuevasTerapias) {
+        showMessage("Por favor, completa todos los campos.");
+        return;
+    }
+
     const padecimiento = padecimientosData.find(p => p.id === id);
     if (padecimiento) {
         padecimiento.nombre = nuevoNombre;
         padecimiento.terapias = nuevasTerapias.split(',').map(terapia => terapia.trim());
-        alert(`Padecimiento '${nuevoNombre}' editado.`);
+        showMessage(`Padecimiento '${nuevoNombre}' editado.`);
         console.log(padecimientosData); // Mostrar la lista actualizada en la consola
     } else {
-        alert('Padecimiento no encontrado.');
+        showMessage('Padecimiento no encontrado.');
     }
 }
 
@@ -74,10 +101,10 @@ function deletePadecimiento(id) {
     const index = padecimientosData.findIndex(p => p.id === id);
     if (index !== -1) {
         const eliminado = padecimientosData.splice(index, 1);
-        alert(`Padecimiento '${eliminado[0].nombre}' eliminado.`);
+        showMessage(`Padecimiento '${eliminado[0].nombre}' eliminado.`);
         console.log(padecimientosData); // Mostrar la lista actualizada en la consola
     } else {
-        alert('Padecimiento no encontrado.');
+        showMessage('Padecimiento no encontrado.');
     }
 }
 
