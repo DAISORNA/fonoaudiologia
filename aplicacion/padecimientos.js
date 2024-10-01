@@ -41,7 +41,7 @@ function showMessage(message) {
 
 // Función para cargar terapias según el padecimiento seleccionado
 function loadTherapies(padecimiento) {
-    const terapiasDiv = document.getElementById('terapias');
+    const terapiasDiv = document.getElementById('terapias'); // Asegúrate de que este ID esté en tu HTML
     if (!terapiasDiv) {
         console.error("Div para terapias no encontrado.");
         return;

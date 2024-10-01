@@ -133,35 +133,35 @@
     <section id="registro" class="hidden">
         <h2>Registro de Pacientes</h2>
         <form id="formRegistro">
-            <label for="nombre">Nombre del Paciente</label>
-            <input type="text" id="nombre" name="nombre" required>
+            <label for="pacienteNombre">Nombre del Paciente</label>
+            <input type="text" id="pacienteNombre" name="nombre" required>
 
-            <label for="edad">Edad</label>
-            <input type="number" id="edad" name="edad" required>
+            <label for="pacienteEdad">Edad</label>
+            <input type="number" id="pacienteEdad" name="edad" required>
 
-            <label for="fechaNacimiento">Fecha de Nacimiento</label>
-            <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+            <label for="nacimientoFecha">Fecha de Nacimiento</label>
+            <input type="date" id="nacimientoFecha" name="fechaNacimiento" required>
 
-            <label for="escolaridad">Escolaridad</label>
-            <input type="text" id="escolaridad" name="escolaridad">
+            <label for="pacienteEscolaridad">Escolaridad</label>
+            <input type="text" id="pacienteEscolaridad" name="escolaridad">
 
-            <label for="domicilio">Domicilio</label>
-            <input type="text" id="domicilio" name="domicilio">
+            <label for="pacienteDomicilio">Domicilio</label>
+            <input type="text" id="pacienteDomicilio" name="domicilio">
 
-            <label for="telefono">Teléfono</label>
-            <input type="tel" id="telefono" name="telefono">
+            <label for="pacienteTelefono">Teléfono</label>
+            <input type="tel" id="pacienteTelefono" name="telefono">
 
-            <label for="acudiente">Acudiente</label>
-            <input type="text" id="acudiente" name="acudiente" required>
+            <label for="pacienteAcudiente">Acudiente</label>
+            <input type="text" id="pacienteAcudiente" name="acudiente" required>
 
-            <label for="referencia">Referencia</label>
-            <input type="text" id="referencia" name="referencia">
+            <label for="pacienteReferencia">Referencia</label>
+            <input type="text" id="pacienteReferencia" name="referencia">
 
-            <label for="fechaEntrevista">Fecha de Entrevista</label>
-            <input type="date" id="fechaEntrevista" name="fechaEntrevista">
+            <label for="entrevistaFecha">Fecha de Entrevista</label>
+            <input type="date" id="entrevistaFecha" name="fechaEntrevista">
 
-            <label for="motivoConsulta">Motivo de Consulta</label>
-            <textarea id="motivoConsulta" name="motivoConsulta" required></textarea>
+            <label for="consultaMotivo">Motivo de Consulta</label>
+            <textarea id="consultaMotivo" name="motivoConsulta" required></textarea>
 
             <button type="submit">Registrar Paciente</button>
         </form>
@@ -171,17 +171,17 @@
     <section id="evaluacion" class="hidden">
         <h2>Evaluación y Tratamiento</h2>
         <form id="formEvaluacion">
-            <label for="hallazgos">Hallazgos Identificados</label>
-            <textarea id="hallazgos" name="hallazgos" required></textarea>
+            <label for="identificadosHallazgos">Hallazgos Identificados</label>
+            <textarea id="identificadosHallazgos" name="hallazgos" required></textarea>
 
-            <label for="prevencion">Prevención</label>
-            <textarea id="prevencion" name="prevencion"></textarea>
+            <label for="prevencionPlan">Prevención</label>
+            <textarea id="prevencionPlan" name="prevencion"></textarea>
 
-            <label for="evaluacion">Evaluación</label>
-            <textarea id="evaluacion" name="evaluacion"></textarea>
+            <label for="evaluacionResumen">Evaluación</label>
+            <textarea id="evaluacionResumen" name="evaluacion"></textarea>
 
-            <label for="tratamiento">Tratamiento</label>
-            <textarea id="tratamiento" name="tratamiento"></textarea>
+            <label for="tratamientoPlan">Tratamiento</label>
+            <textarea id="tratamientoPlan" name="tratamiento"></textarea>
 
             <button type="submit">Guardar Evaluación</button>
         </form>
@@ -190,8 +190,8 @@
     <!-- Sección de Padecimientos -->
     <section id="padecimientos" class="hidden">
         <h2>Padecimientos y Terapias</h2>
-        <label for="tipoPadecimiento">Selecciona un Padecimiento:</label>
-        <select id="tipoPadecimiento" name="tipoPadecimiento" onchange="loadTherapies(this.value)">
+        <label for="seleccionPadecimiento">Selecciona un Padecimiento:</label>
+        <select id="seleccionPadecimiento" name="tipoPadecimiento" onchange="loadTherapies(this.value)">
             <option value="">--Seleccionar--</option>
             <option value="dislalia">Dislalia</option>
             <option value="dislexia">Dislexia</option>
@@ -206,13 +206,13 @@
         <h2>Seguimiento de Pacientes</h2>
         <div id="message"></div> <!-- Div para mostrar mensajes -->
         <form id="formSeguimiento">
-            <label for="nombrePaciente">Nombre del Paciente</label>
-            <input type="text" id="nombrePaciente" name="nombrePaciente" required>
+            <label for="pacienteNombreSeguimiento">Nombre del Paciente</label>
+            <input type="text" id="pacienteNombreSeguimiento" name="nombrePaciente" required>
     
-            <label for="comentarioSeguimiento">Comentario de Seguimiento</label>
-            <textarea id="comentarioSeguimiento" name="comentarioSeguimiento" required></textarea>
+            <label for="comentarioSeguimientoPaciente">Comentario de Seguimiento</label>
+            <textarea id="comentarioSeguimientoPaciente" name="comentarioSeguimiento" required></textarea>
     
-            <button type="submit">Agregar Seguimiento</button> <!-- Cambiado a tipo submit -->
+            <button type="submit">Agregar Seguimiento</button>
         </form>
         
         <div id="resultadosSeguimiento">

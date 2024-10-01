@@ -44,7 +44,6 @@ function saveSeguimiento(seguimiento) {
 
 // Función para mostrar los comentarios anteriores
 function mostrarComentariosAnteriores() {
-    const resultadosDiv = document.getElementById('resultadosSeguimiento');
     const listaSeguimientos = document.getElementById('listaSeguimientos');
     listaSeguimientos.innerHTML = ''; // Limpiar comentarios previos
 

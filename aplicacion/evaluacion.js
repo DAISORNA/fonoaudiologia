@@ -4,10 +4,10 @@ document.getElementById('formEvaluacion').addEventListener('submit', function(ev
     event.preventDefault(); // Evitar el envío del formulario
 
     // Obtener valores de los campos
-    const hallazgos = document.getElementById('hallazgosEvaluacion').value.trim();
-    const prevencion = document.getElementById('prevencionEvaluacion').value.trim();
-    const evaluacion = document.getElementById('evaluacionResultados').value.trim();
-    const tratamiento = document.getElementById('tratamientoEvaluacion').value.trim();
+    const hallazgos = document.getElementById('hallazgos').value.trim();
+    const prevencion = document.getElementById('prevencion').value.trim();
+    const evaluacion = document.getElementById('evaluacion').value.trim();
+    const tratamiento = document.getElementById('tratamiento').value.trim();
 
     // Validación de campos
     if (!hallazgos || !prevencion || !evaluacion || !tratamiento) {
