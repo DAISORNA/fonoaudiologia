@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fonoaudiología - Atención Infantil</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <style>
-        /* CSS integrado en HTML */
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f8ff;
@@ -16,21 +14,21 @@
             flex-direction: column;
             align-items: center;
         }
-    
+
         header {
             background-color: #1e90ff;
             color: white;
             padding: 20px;
             text-align: center;
             width: 100%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* Aumentar la sombra */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); 
         }
-    
+
         nav {
-            margin: 20px;
+            margin-bottom: 20px;
         }
-    
-        button {
+
+        .nav-button {
             background-color: #00ced1;
             color: white;
             padding: 10px 20px;
@@ -40,56 +38,61 @@
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Aumentar la sombra */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); 
         }
-    
-        button:hover {
+
+        .nav-button:hover {
             background-color: #20b2aa;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); /* Efecto de hover más pronunciado */
-            transform: translateY(-3px); /* Movimiento hacia arriba más notorio */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); 
+            transform: translateY(-3px); 
         }
-    
-        button:active {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra más suave al hacer clic */
-            transform: translateY(2px); /* Movimiento hacia abajo al hacer clic */
+
+        .nav-button:active {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transform: translateY(2px);
         }
-    
+
+        .hero-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Aumentar la sombra */
+        }
+        
         section {
             display: none;
             margin: 20px;
             padding: 20px;
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Aumentar la sombra */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); 
             width: 60%;
         }
-    
-        .hidden {
-            display: none;
-        }
-    
+
         input, select, textarea {
-            width: 100%;
-            padding: 12px; /* Aumentar padding para mayor área de clic */
+            width: 90%;
+            padding: 12px; 
             margin: 10px 0;
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 16px;
-            transition: border-color 0.3s ease; /* Añadir transición para el borde */
-        }
-    
+            transition: border-color 0.3s ease; 
+        }   
+
         input:focus {
             border-color: #00ced1;
             box-shadow: 0 2px 8px rgba(0, 206, 209, 0.5); /* Efecto de foco más destacado */
         }
-    
+
         label {
             font-size: 16px; /* Aumentar el tamaño de la fuente */
             margin-top: 10px;
             display: block;
             color: #333;
         }
-    
+
         form button {
             background-color: #1e90ff;
             color: white;
@@ -101,57 +104,55 @@
             font-size: 16px;
             transition: all 0.3s ease;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-        }
-    
+        } 
+
         form button:hover {
             background-color: #4169e1;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Efecto de hover más pronunciado */
             transform: translateY(-3px); /* Movimiento hacia arriba más notorio */
         }
-    
+
         form button:active {
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             transform: translateY(2px);
         }
-    
-        .hero-image {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            margin-top: 20px;
-            border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Aumentar la sombra */
+
+        section.active {
+            display: block;
         }
-    
-        #resultadosSeguimiento {
+
+        .hidden {
+            display: none;
+        }
+
+        .resultadosSeguimiento {
             margin-top: 20px;
             background-color: #f9f9f9;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Aumentar la sombra */
         }
-    
-        #message {
-            color: red;
-            margin-bottom: 10px;
+
+        .message {
+            color: green;
+            margin-top: 10px;
         }
     </style>
-    
 </head>
 <body>
     <header>
-        <h1>Programa de Atención Infantil en Fonoaudiología</h1>
+        <h1>Programa de Atención Fonoaudiológico</h1>
     </header>
     <img src="fono.jpg" alt="Imagen de Fonoaudiología" class="hero-image">
     <nav>
         <button class="nav-button" data-section="registro">Registro de Pacientes</button>
-        <button class="nav-button" data-section="evaluacion">Evaluación y Tratamiento</button>
-        <button class="nav-button" data-section="padecimientos">Padecimientos y Terapias</button>
-        <button class="nav-button" data-section="seguimiento">Seguimiento de Pacientes</button>
+        <button class="nav-button" data-section="evaluacion">Evaluación</button>
+        <button class="nav-button" data-section="padecimientos">Padecimientos</button>
+        <button class="nav-button" data-section="seguimiento">Seguimiento</button>
     </nav>
 
     <!-- Sección de Registro -->
-    <section id="registro" class="hidden">
+    <section id="registro" class="active">
         <h2>Registro de Pacientes</h2>
         <form id="formRegistro">
             <label for="pacienteNombre">Nombre del Paciente</label>
@@ -184,13 +185,21 @@
             <label for="consultaMotivo">Motivo de Consulta</label>
             <textarea id="consultaMotivo" name="motivoConsulta" required></textarea>
 
+            <label for="sexo">Sexo:</label>
+            <select id="sexo" name="sexo" required>
+                <option value="">Seleccione</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+            </select>
+
             <button type="submit">Registrar Paciente</button>
         </form>
+        <div id="message" class="message"></div>
     </section>
 
     <!-- Sección de Evaluación -->
-    <section id="evaluacion" class="hidden">
-        <h2>Evaluación y Tratamiento</h2>
+    <section id="evaluacion">
+        <h2>Evaluación</h2>
         <form id="formEvaluacion">
             <label for="identificadosHallazgos">Hallazgos Identificados</label>
             <textarea id="identificadosHallazgos" name="hallazgos" required></textarea>
@@ -206,11 +215,12 @@
 
             <button type="submit">Guardar Evaluación</button>
         </form>
+        <div id="message" class="message"></div>
     </section>
 
     <!-- Sección de Padecimientos -->
-    <section id="padecimientos" class="hidden">
-        <h2>Padecimientos y Terapias</h2>
+    <section id="padecimientos">
+        <h2>Padecimientos</h2>
         <label for="seleccionPadecimiento">Selecciona un Padecimiento:</label>
         <select id="seleccionPadecimiento" name="tipoPadecimiento" onchange="loadTherapies(this.value)">
             <option value="">--Seleccionar--</option>
@@ -223,28 +233,21 @@
     </section>
 
     <!-- Sección de Seguimiento -->
-    <section id="seguimiento" class="hidden">
-        <h2>Seguimiento de Pacientes</h2>
-        <div id="message"></div> <!-- Div para mostrar mensajes -->
+    <section id="seguimiento">
+        <h2>Seguimiento</h2>
         <form id="formSeguimiento">
-            <label for="pacienteNombreSeguimiento">Nombre del Paciente</label>
-            <input type="text" id="pacienteNombreSeguimiento" name="nombrePaciente" required>
-    
-            <label for="comentarioSeguimientoPaciente">Comentario de Seguimiento</label>
-            <textarea id="comentarioSeguimientoPaciente" name="comentarioSeguimiento" required></textarea>
-    
-            <button type="submit">Agregar Seguimiento</button>
+            <label for="pacienteSeguimiento">Nombre del Paciente:</label>
+            <input type="text" id="pacienteSeguimiento" name="nombre" required>
+
+            <label for="resultados">Resultados de Seguimiento:</label>
+            <textarea id="resultados" name="resultados" required></textarea>
+
+            <button type="submit">Guardar Seguimiento</button>
         </form>
-        
-        <div id="resultadosSeguimiento">
-            <ul id="listaSeguimientos"></ul> <!-- Agrega este elemento para mostrar la lista de seguimientos -->
-        </div>
+        <div id="resultadosSeguimiento"></div>
+        <div id="message" class="message"></div>
     </section>
 
-    <script type="module" src="navigation.js"></script>
-    <script type="module" src="registro.js"></script>
-    <script type="module" src="padecimientos.js"></script>
-    <script type="module" src="evaluacion.js"></script>
-    <script type="module" src="seguimiento.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
