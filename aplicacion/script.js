@@ -1,76 +1,57 @@
-// script.js
-document.addEventListener("DOMContentLoaded", () => {
-    const navButtons = document.querySelectorAll('.nav-button');
-    const sections = document.querySelectorAll('section');
-    
-    // Manejar clic en los botones de navegación
+// Espera a que todo el contenido del documento HTML haya sido completamente cargado
+document.addEventListener("DOMContentLoaded", function() {
+    // Selecciona todos los botones de navegación usando la clase .nav-button
+    const navButtons = document.querySelectorAll(".nav-button");
+    // Selecciona todas las secciones del documento
+    const sections = document.querySelectorAll("section");
+
+    // Recorre cada botón de navegación
     navButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const sectionToShow = event.target.getAttribute('data-section');
-            toggleSections(sectionToShow);
+        // Añade un evento de clic a cada botón
+        button.addEventListener("click", function() {
+            // Obtiene el atributo data-section del botón que indica qué sección mostrar
+            const sectionToShow = button.getAttribute("data-section");
+            // Recorre todas las secciones
+            sections.forEach(section => {
+                // Elimina la clase 'active' de la sección para ocultarla
+                section.classList.remove("active");
+                // Si la sección actual es la que se debe mostrar, añade la clase 'active'
+                if (section.id === sectionToShow) {
+                    section.classList.add("active");
+                }
+            });
         });
     });
 
-    // Función para mostrar y ocultar secciones
-    function toggleSections(sectionToShow) {
-        sections.forEach(section => {
-            section.classList.toggle('active', section.id === sectionToShow);
-        });
-    }
+    // Función para buscar paciente cuando se hace clic en el botón de búsqueda
+    document.getElementById("buscarPaciente").addEventListener("click", function() {
+        // Obtiene el valor del campo de nombre del paciente
+        const nombre = document.getElementById("pacienteNombre").value;
+        // Obtiene el valor del campo de edad del paciente
+        const edad = document.getElementById("pacienteEdad").value;
 
-    // Manejo del registro de pacientes
-    const formRegistro = document.getElementById('formRegistro');
-    formRegistro.addEventListener('submit', (event) => {
-        event.preventDefault(); // Prevenir el envío del formulario
-        const formData = new FormData(formRegistro);
-        const pacienteData = {};
-        formData.forEach((value, key) => {
-            pacienteData[key] = value;
-        });
-        console.log('Registro de paciente:', pacienteData);
-        formRegistro.reset(); // Limpiar el formulario
-        showMessage('Paciente registrado con éxito');
+        // Aquí puedes agregar la lógica para buscar el paciente en tu base de datos
+        // Verifica que tanto el nombre como la edad estén completos
+        if (nombre && edad) {
+            // Si se encuentran los datos, muestra un mensaje con la información del paciente
+            const resultado = `Paciente encontrado: ${nombre}, Edad: ${edad}`;
+            alert(resultado);
+        } else {
+            // Si faltan datos, muestra una advertencia al usuario
+            alert("Por favor, complete el nombre y la edad para buscar.");
+        }
     });
 
-    // Manejo de la evaluación
-    const formEvaluacion = document.getElementById('formEvaluacion');
-    formEvaluacion.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const evaluacionData = new FormData(formEvaluacion);
-        console.log('Evaluación guardada:', Object.fromEntries(evaluacionData.entries()));
-        formEvaluacion.reset();
-        showMessage('Evaluación guardada con éxito');
+    // Función para limpiar los datos del formulario de registro
+    document.getElementById("limpiarDatos").addEventListener("click", function() {
+        // Resetea el formulario de registro para limpiar todos los campos
+        document.getElementById("formRegistro").reset();
     });
 
-    // Manejo de los padecimientos
-    const formPadecimientos = document.getElementById('formPadecimientos');
-    formPadecimientos.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const padecimientoData = new FormData(formPadecimientos);
-        console.log('Padecimiento guardado:', Object.fromEntries(padecimientoData.entries()));
-        formPadecimientos.reset();
-        showMessage('Padecimiento guardado con éxito');
+    // Función para limpiar los datos del formulario de seguimiento
+    document.getElementById("limpiarDatosSeguimiento").addEventListener("click", function() {
+        // Resetea el formulario de seguimiento para limpiar todos los campos
+        document.getElementById("formSeguimiento").reset();
     });
-
-    // Manejo del seguimiento
-    const formSeguimiento = document.getElementById('formSeguimiento');
-    formSeguimiento.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const seguimientoData = new FormData(formSeguimiento);
-        const resultadosDiv = document.getElementById('resultadosSeguimiento');
-        const resultadosHtml = document.createElement('div');
-        resultadosHtml.textContent = `Seguimiento de ${seguimientoData.get('nombre')}: ${seguimientoData.get('resultados')}`;
-        resultadosDiv.appendChild(resultadosHtml);
-        formSeguimiento.reset();
-        showMessage('Seguimiento guardado con éxito');
-    });
-
-    // Función para mostrar mensajes
-    function showMessage(msg) {
-        const messageDiv = document.getElementById('message');
-        messageDiv.textContent = msg;
-        setTimeout(() => {
-            messageDiv.textContent = '';
-        }, 3000);
-    }
 });
+

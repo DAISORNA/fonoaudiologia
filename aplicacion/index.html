@@ -4,138 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
     <style>
+        /* Estilo general para el cuerpo del documento */
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f8ff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Poppins', sans-serif;  /* Establece la fuente para todo el cuerpo */
+            background-color: #f0f8ff;  /* Color de fondo del cuerpo */
+            margin: 0; /* Elimina márgenes predeterminados */
+            padding: 0; /* Elimina relleno predeterminado */
+            display: flex; /* Utiliza Flexbox para el diseño */
+            flex-direction: column; /* Dispone los elementos en columna */
+            align-items: center;  /* Alinea los elementos al centro horizontalmente */
         }
 
         header {
-            background-color: #1e90ff;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            width: 100%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); 
+            background-color: #047bdd;  /* Color de fondo del encabezado */
+            color: white;  /* Color del texto del encabezado */
+            padding: 20px; /* Relleno interno del encabezado */
+            text-align: center; /* Centra el texto del encabezado */
+            width: 97%;  /* Ancho del encabezado */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* Sombra para el encabezado */
+            border-radius: 10px; /* Bordes redondeados del encabezado */
+        }
+
+        /* Estilos para la imagen destacada (hero image) */
+        .hero-image {
+            width: 99.5%; /* Ancho de la imagen */
+            max-height: 400px; /* Limita la altura máxima de la imagen */
+            object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
+            margin-top: 20px; /* Espacio superior de la imagen */
+            border-radius: 10px; /* Bordes redondeados de la imagen */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Sombra para la imagen */
         }
 
         nav {
-            margin-bottom: 20px;
+            margin-bottom: 20px; /* Espacio inferior del nav */
         }
 
         .nav-button {
-            background-color: #00ced1;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            margin: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); 
+            background-color: #00ced1;  /* Color de fondo del botón de navegación */
+            color: white; /* Color del texto del botón */
+            padding: 10px 20px; /* Relleno interno del botón */
+            border: none; /* Sin borde */
+            border-radius: 5px; /* Bordes redondeados del botón */
+            margin: 5px; /* Margen alrededor del botón */
+            cursor: pointer; /* Cambia el cursor al pasar por encima */
+            font-size: 16px; /* Tamaño de fuente del texto del botón */
+            transition: all 0.3s ease; /* Transición suave para los efectos de hover */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Sombra para el botón */
         }
 
         .nav-button:hover {
-            background-color: #20b2aa;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); 
-            transform: translateY(-3px); 
+            background-color: #20b2aa; /* Cambio de color al pasar el ratón por encima */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6); /* Sombra más pronunciada al hover */
+            transform: translateY(-3px); /* Levanta el botón al pasar el ratón */
         }
 
+        /* Efectos al hacer clic en los botones */
         .nav-button:active {
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transform: translateY(2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra reducida al hacer clic */
+            transform: translateY(2px); /* Baja el botón al hacer clic */
         }
 
-        .hero-image {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            margin-top: 20px;
-            border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Aumentar la sombra */
-        }
-        
         section {
-            display: none;
-            margin: 20px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); 
-            width: 60%;
+            display: none; /* Oculta por defecto las secciones */
+            margin: 20px; /* Margen alrededor de la sección */
+            padding: 20px; /* Relleno interno de la sección */
+            background-color: white; /* Color de fondo de la sección */
+            border-radius: 10px; /* Bordes redondeados de la sección */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Sombra para la sección */
+            width: 70%; /* Ancho de la sección */
         }
 
         input, select, textarea {
-            width: 90%;
-            padding: 12px; 
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            transition: border-color 0.3s ease; 
+            width: 85%; /* Ancho de los campos de entrada */
+            padding: 12px; /* Relleno interno de los campos */
+            margin: 10px 0; /* Margen superior e inferior */
+            border-radius: 5px; /* Bordes redondeados de los campos */
+            border: 1px solid #ccc; /* Borde gris claro */
+            font-size: 16px; /* Tamaño de fuente del texto en los campos */
+            transition: border-color 0.3s ease; /* Transición suave para el borde */
         }   
 
         input:focus {
-            border-color: #00ced1;
-            box-shadow: 0 2px 8px rgba(0, 206, 209, 0.5); /* Efecto de foco más destacado */
+            border-color: #00ced1; /* Cambio de color del borde al enfocar el campo */
+            box-shadow: 0 2px 8px rgba(0, 206, 209, 0.5); /* Sombra al enfocar el campo */
         }
 
         label {
-            font-size: 16px; /* Aumentar el tamaño de la fuente */
-            margin-top: 10px;
-            display: block;
-            color: #333;
+            font-size: 16px; /* Tamaño de fuente de las etiquetas */
+            margin-top: 10px; /* Espacio superior de la etiqueta */
+            display: block; /* Las etiquetas ocupan todo el ancho */
+            color: #333; /* Color del texto de las etiquetas */
         }
 
         form button {
-            background-color: #1e90ff;
-            color: white;
-            padding: 12px; /* Aumentar padding para mayor área de clic */
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            background-color: #1e90ff; /* Color de fondo del botón en el formulario */
+            color: white; /* Color del texto del botón */
+            padding: 12px; /* Relleno interno del botón */
+            border: none; /* Sin borde */
+            border-radius: 5px; /* Bordes redondeados del botón */
+            cursor: pointer; /* Cambia el cursor al pasar por encima */
+            margin-top: 10px; /* Espacio superior del botón */
+            font-size: 16px; /* Tamaño de fuente del texto del botón */
+            transition: all 0.3s ease; /* Transición suave para los efectos de hover */
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3); /* Sombra para el botón */
         } 
 
         form button:hover {
-            background-color: #4169e1;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Efecto de hover más pronunciado */
-            transform: translateY(-3px); /* Movimiento hacia arriba más notorio */
+            background-color: #4169e1; /* Cambio de color al pasar el ratón por encima */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); /* Sombra más pronunciada al hover */
+            transform: translateY(-3px); /* Levanta el botón al pasar el ratón */
         }
 
+        /* Efectos al hacer clic en los botones */
         form button:active {
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transform: translateY(2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Sombra reducida al hacer clic */
+            transform: translateY(2px); /* Baja el botón al hacer clic */
         }
 
         section.active {
-            display: block;
-        }
-
-        .hidden {
-            display: none;
+            display: block; /* Muestra la sección activa */
         }
 
         .resultadosSeguimiento {
-            margin-top: 20px;
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Aumentar la sombra */
+            margin-top: 20px; /* Espacio superior para resultados de seguimiento */
+            background-color: #f9f9f9; /* Color de fondo de los resultados */
+            padding: 15px; /* Relleno interno de los resultados */
+            border-radius: 10px; /* Bordes redondeados de los resultados */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Sombra para los resultados */
         }
 
         .message {
-            color: green;
-            margin-top: 10px;
+            color: green; /* Color del texto de mensajes */
+            margin-top: 10px; /* Espacio superior para el mensaje */
         }
     </style>
 </head>
@@ -143,15 +145,14 @@
     <header>
         <h1>Programa de Atención Fonoaudiológico</h1>
     </header>
+
     <img src="fono.jpg" alt="Imagen de Fonoaudiología" class="hero-image">
+
     <nav>
         <button class="nav-button" data-section="registro">Registro de Pacientes</button>
-        <button class="nav-button" data-section="evaluacion">Evaluación</button>
-        <button class="nav-button" data-section="padecimientos">Padecimientos</button>
         <button class="nav-button" data-section="seguimiento">Seguimiento</button>
     </nav>
 
-    <!-- Sección de Registro -->
     <section id="registro" class="active">
         <h2>Registro de Pacientes</h2>
         <form id="formRegistro">
@@ -179,75 +180,54 @@
             <label for="pacienteReferencia">Referencia</label>
             <input type="text" id="pacienteReferencia" name="referencia">
 
-            <label for="entrevistaFecha">Fecha de Entrevista</label>
-            <input type="date" id="entrevistaFecha" name="fechaEntrevista">
+            <h2>Evaluación</h2>
+            <label for="evaluacionFecha">Fecha de Evaluación</label>
+            <input type="date" id="evaluacionFecha" name="fechaEvaluacion" required>
 
-            <label for="consultaMotivo">Motivo de Consulta</label>
-            <textarea id="consultaMotivo" name="motivoConsulta" required></textarea>
+            <label for="evaluacionTipo">Tipo de Evaluación</label>
+            <input type="text" id="evaluacionTipo" name="tipoEvaluacion">
 
-            <label for="sexo">Sexo:</label>
-            <select id="sexo" name="sexo" required>
-                <option value="">Seleccione</option>
-                <option value="M">Masculino</option>
-                <option value="F">Femenino</option>
+            <label for="evaluacionNotas">Notas de Evaluación</label>
+            <textarea id="evaluacionNotas" name="notas"></textarea>
+
+            <h2>Padecimiento</h2>
+            <label for="padecimientoTipo">Tipo de Padecimiento</label>
+            <select id="padecimientoTipo" name="tipoPadecimiento" required>
+                <option value="" disabled selected>Seleccione un tipo de padecimiento</option>
+                <option value="trastornoLenguaje">Trastorno del lenguaje</option>
+                <option value="trastornoHabla">Trastorno del habla</option>
+                <option value="trastornoVoz">Trastorno de la voz</option>
+                <option value="disfagia">Disfagia</option>
+                <option value="trastornoComunicacion">Trastorno de la comunicación</option>
+                <option value="afasia">Afasia</option>
+                <option value="dislalia">Dislalia</option>
+                <option value="disartria">Disartria</option>
             </select>
 
+            <label for="padecimientoDescripcion">Descripción</label>
+            <textarea id="padecimientoDescripcion" name="descripcion"></textarea>
+
             <button type="submit">Registrar Paciente</button>
+            <button type="button" id="buscarPaciente">Buscar Paciente</button>
+            <button type="button" id="limpiarDatos">Limpiar datos de Paciente</button>
         </form>
-        <div id="message" class="message"></div>
     </section>
 
-    <!-- Sección de Evaluación -->
-    <section id="evaluacion">
-        <h2>Evaluación</h2>
-        <form id="formEvaluacion">
-            <label for="identificadosHallazgos">Hallazgos Identificados</label>
-            <textarea id="identificadosHallazgos" name="hallazgos" required></textarea>
-
-            <label for="prevencionPlan">Prevención</label>
-            <textarea id="prevencionPlan" name="prevencion"></textarea>
-
-            <label for="evaluacionResumen">Evaluación</label>
-            <textarea id="evaluacionResumen" name="evaluacion"></textarea>
-
-            <label for="tratamientoPlan">Tratamiento</label>
-            <textarea id="tratamientoPlan" name="tratamiento"></textarea>
-
-            <button type="submit">Guardar Evaluación</button>
-        </form>
-        <div id="message" class="message"></div>
-    </section>
-
-    <!-- Sección de Padecimientos -->
-    <section id="padecimientos">
-        <h2>Padecimientos</h2>
-        <label for="seleccionPadecimiento">Selecciona un Padecimiento:</label>
-        <select id="seleccionPadecimiento" name="tipoPadecimiento" onchange="loadTherapies(this.value)">
-            <option value="">--Seleccionar--</option>
-            <option value="dislalia">Dislalia</option>
-            <option value="dislexia">Dislexia</option>
-            <option value="tgd">Trastorno del espectro autista</option>
-        </select>
-
-        <div id="terapias"></div>
-    </section>
-
-    <!-- Sección de Seguimiento -->
     <section id="seguimiento">
-        <h2>Seguimiento</h2>
+        <h2>Seguimiento de Pacientes</h2>
         <form id="formSeguimiento">
-            <label for="pacienteSeguimiento">Nombre del Paciente:</label>
-            <input type="text" id="pacienteSeguimiento" name="nombre" required>
+            <label for="seguimientoFecha">Fecha de Seguimiento</label>
+            <input type="date" id="seguimientoFecha" name="fechaSeguimiento" required>
 
-            <label for="resultados">Resultados de Seguimiento:</label>
-            <textarea id="resultados" name="resultados" required></textarea>
+            <label for="seguimientoNotas">Notas del Seguimiento</label>
+            <textarea id="seguimientoNotas" name="notas"></textarea>
 
             <button type="submit">Guardar Seguimiento</button>
+            <button type="button" id="buscarSeguimiento">Buscar Seguimiento</button>
+            <button type="button" id="limpiarDatosSeguimiento">Limpiar datos de Seguimiento</button>
         </form>
-        <div id="resultadosSeguimiento"></div>
-        <div id="message" class="message"></div>
     </section>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
