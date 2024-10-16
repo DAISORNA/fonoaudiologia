@@ -10,24 +10,32 @@
         }
 
         header {
-            background-color: #047bdd;  /* Color de fondo del encabezado */
-            color: white;  /* Color del texto del encabezado */
-            padding: 20px; /* Relleno interno del encabezado */
+            background-color: #221a7e; /* Color de fondo del encabezado */
+            color: white; /* Color del texto del encabezado */
+            padding: 1px; /* Relleno interno del encabezado */
             text-align: center; /* Centra el texto del encabezado */
-            width: 97%;  /* Ancho del encabezado */
+            width: 50%; /* Ancho del encabezado */
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* Sombra para el encabezado */
             border-radius: 10px; /* Bordes redondeados del encabezado */
+            position: absolute; /* Posiciona el encabezado en relación al contenedor */
+            top: 20px; /* Distancia desde la parte superior del contenedor */
+            left: 50%; /* Centro horizontalmente */
+            transform: translateX(-50%); /* Corrige la posición para centrar el encabezado */
+            z-index: 1; /* Asegura que el encabezado esté por encima de la imagen */
         }
 
         /* Estilos para la imagen destacada (hero image) */
         .hero-image {
             width: 100%; /* Ancho de la imagen */
-            opacity: 0.9; /*Transparencia */
-            max-height: 300px; /* Limita la altura máxima de la imagen */
+            opacity: 0.9; /* Transparencia */
+            max-height: 500px; /* Limita la altura máxima de la imagen */
             object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
-            margin-top: 0.2px; /* Espacio superior de la imagen */
+            object-position: bottom; /* Muestra más la parte inferior de la imagen */
+            margin-top: -90px; /* Espacio negativo para mover la imagen hacia arriba */
             border-radius: 10px; /* Bordes redondeados de la imagen */
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Sombra para la imagen */
+            position: relative; /* Para asegurar que la imagen esté posicionada correctamente */
+            z-index: 0; /* Asegura que la imagen esté detrás del cuadro */
         }
 
         nav {
@@ -35,7 +43,8 @@
         }
 
         .nav-button {
-            background-color: #00ced1;  /* Color de fondo del botón de navegación */
+            display: inline-block; /* Hace que el botón se comporte como un bloque en línea */
+            background-color: #00ced1; /* Color de fondo del botón de navegación */
             color: white; /* Color del texto del botón */
             padding: 10px 20px; /* Relleno interno del botón */
             border: none; /* Sin borde */
@@ -45,7 +54,7 @@
             font-size: 16px; /* Tamaño de fuente del texto del botón */
             transition: all 0.3s ease; /* Transición suave para los efectos de hover */
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Sombra para el botón */
-        }
+            }
 
         .nav-button:hover {
             background-color: #20b2aa; /* Cambio de color al pasar el ratón por encima */
@@ -92,7 +101,7 @@
         }
 
         form button {
-            background-color: #1e90ff; /* Color de fondo del botón en el formulario */
+            background-color: #221a7e; /* Color de fondo del botón en el formulario */
             color: white; /* Color del texto del botón */
             padding: 12px; /* Relleno interno del botón */
             border: none; /* Sin borde */
