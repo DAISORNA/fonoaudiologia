@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  api:
+    build: { context: ., dockerfile: Dockerfile }
+    container_name: fono-suite-api
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://fono:password@db:5432/fonoapp
+      - JWT_SECRET=PLEASE_CHANGE_ME
+      - CORS_ORIGINS=*
+    volumes:
+      - storage:/app/backend/storage
+    depends_on: [db]
+
+  db:
+    image: postgres:16
+    container_name: fono-suite-db
+    environment:
+      - POSTGRES_USER=fono
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=funoapp
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+
+  web:
+    build: { context: ., dockerfile: frontend.Dockerfile }
+    container_name: fono-suite-web
+    ports: ["8080:80"]
+    depends_on: [api]
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: fono-suite-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@local.test
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports: ["5050:80"]
+    depends_on: [db]
+
+volumes:
+  pgdata:
+  storage:
