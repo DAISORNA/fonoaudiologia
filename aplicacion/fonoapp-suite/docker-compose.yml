@@ -25,7 +25,7 @@ services:
   web:
     build: { context: ., dockerfile: frontend.Dockerfile }
     container_name: fono-suite-web
-    ports: ["8080:80"]
+    ports: ["8081:80"]
     depends_on: [api]
 
   pgadmin:
