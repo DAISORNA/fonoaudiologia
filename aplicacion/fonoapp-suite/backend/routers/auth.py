@@ -1,32 +1,32 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from ..core.database import get_db, Base, engine
-from ..models.user import User
-from ..schemas.auth import UserCreate, UserOut, LoginIn, Token
-from ..core.security import hash_password, verify_password, create_access_token
-from ..core.deps import get_current_user
+from sqlalchemy.exc import IntegrityError
+from ..core.database import get_db
+from ..core.security import hash_password
+from ..schemas.auth import UserCreate, UserOut
+from ..models import User  # ajusta el import según tu estructura
 
-Base.metadata.create_all(bind=engine)
+router = APIRouter(prefix="/auth", tags=["auth"])
 
-router = APIRouter()
-
-@router.post("/register", response_model=UserOut)
+@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    exists = db.query(User).filter(User.email == user_in.email).first()
-    if exists:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    user = User(email=user_in.email, full_name=user_in.full_name, role=user_in.role, hashed_password=hash_password(user_in.password))
-    db.add(user); db.commit(); db.refresh(user)
-    return user
+    # Doble defensa: chequeo previo y control de unique constraint
+    existing = db.query(User).filter(User.email == user_in.email).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="Email already registered")
 
-@router.post("/login", response_model=Token)
-def login(data: LoginIn, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = create_access_token(subject=user.email, role=user.role)
-    return Token(access_token=token)
-
-@router.get("/me", response_model=UserOut)
-def me(user: User = Depends(get_current_user)):
+    user = User(
+        full_name=user_in.full_name,
+        email=user_in.email,
+        role=user_in.role,
+        hashed_password=hash_password(user_in.password),
+    )
+    db.add(user)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        # Si otro proceso insertó el mismo email en paralelo
+        raise HTTPException(status_code=409, detail="Email already registered")
+    db.refresh(user)
     return user

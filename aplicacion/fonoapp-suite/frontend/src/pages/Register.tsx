@@ -18,6 +18,17 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
+function getErrorMessage(err: any) {
+  // FastAPI: detail puede ser string o una lista de errores 422
+  const d = err?.response?.data?.detail
+  if (Array.isArray(d)) {
+    return d.map((e: any) => e?.msg ?? JSON.stringify(e)).join(', ')
+  }
+  if (typeof d === 'string') return d
+  if (err?.message) return err.message
+  return 'No se pudo completar el registro.'
+}
+
 export default function Register() {
   const nav = useNavigate()
   const [status, setStatus] = useState<{type: 'success' | 'error' | null, msg: string}>({type: null, msg: ''})
@@ -31,22 +42,15 @@ export default function Register() {
     const { passwordConfirm, ...payload } = data
     setStatus({ type: null, msg: '' })
     try {
-      // 1) Registrar
-      await api.post('/auth/register', payload)
-
-      // 2) Aviso y auto-login
+      const res = await api.post('/auth/register', payload)
+      if (res.status !== 201) throw new Error('El servidor no confirmó la creación')
       setStatus({ type: 'success', msg: 'Cuenta creada correctamente. Iniciando sesión…' })
-      const res = await api.post('/auth/login', { email: payload.email, password: payload.password })
-      localStorage.setItem('token', res.data.access_token)
 
-      // 3) A dashboard
+      const login = await api.post('/auth/login', { email: payload.email, password: payload.password })
+      localStorage.setItem('token', login.data.access_token)
       nav('/app/dashboard')
-    } catch (err: any) {
-      const detail =
-        err?.response?.data?.detail ||
-        err?.message ||
-        'No se pudo completar el registro.'
-      setStatus({ type: 'error', msg: String(detail) })
+    } catch (err) {
+      setStatus({ type: 'error', msg: getErrorMessage(err) })
     }
   }
 
@@ -63,7 +67,6 @@ export default function Register() {
         <div className="w-full max-w-md card p-8">
           <h2 className="text-2xl font-semibold mb-6">Registro</h2>
 
-          {/* Aviso de estado */}
           {status.type && (
             <div className={`mb-4 rounded-lg p-3 text-sm ${
               status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
