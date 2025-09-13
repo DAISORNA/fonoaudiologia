@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,16 +20,34 @@ type FormData = z.infer<typeof schema>
 
 export default function Register() {
   const nav = useNavigate()
+  const [status, setStatus] = useState<{type: 'success' | 'error' | null, msg: string}>({type: null, msg: ''})
+  const [showPwd, setShowPwd] = useState(false)
+  const [showPwd2, setShowPwd2] = useState(false)
+
   const { register, handleSubmit, formState: { errors, isSubmitting } } =
-    useForm<FormData>({ resolver: zodResolver(schema) })
+    useForm<FormData>({ resolver: zodResolver(schema), mode: 'onTouched' })
 
   const onSubmit = async (data: FormData) => {
-    // No enviar passwordConfirm a la API
     const { passwordConfirm, ...payload } = data
-    await api.post('/auth/register', payload)
-    const res = await api.post('/auth/login', { email: payload.email, password: payload.password })
-    localStorage.setItem('token', res.data.access_token)
-    nav('/app/dashboard')
+    setStatus({ type: null, msg: '' })
+    try {
+      // 1) Registrar
+      await api.post('/auth/register', payload)
+
+      // 2) Aviso y auto-login
+      setStatus({ type: 'success', msg: 'Cuenta creada correctamente. Iniciando sesión…' })
+      const res = await api.post('/auth/login', { email: payload.email, password: payload.password })
+      localStorage.setItem('token', res.data.access_token)
+
+      // 3) A dashboard
+      nav('/app/dashboard')
+    } catch (err: any) {
+      const detail =
+        err?.response?.data?.detail ||
+        err?.message ||
+        'No se pudo completar el registro.'
+      setStatus({ type: 'error', msg: String(detail) })
+    }
   }
 
   return (
@@ -39,30 +58,65 @@ export default function Register() {
           <p className="text-blue-100">Selecciona tu rol y empieza a trabajar.</p>
         </div>
       </div>
+
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-md card p-8">
           <h2 className="text-2xl font-semibold mb-6">Registro</h2>
+
+          {/* Aviso de estado */}
+          {status.type && (
+            <div className={`mb-4 rounded-lg p-3 text-sm ${
+              status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+            }`}>
+              {status.msg}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" autoComplete="off">
             <div>
               <label>Nombre completo</label>
               <input className="input mt-1" {...register('full_name')} autoComplete="name" />
               {errors.full_name && <p className="text-red-600 text-sm mt-1">{errors.full_name.message}</p>}
             </div>
+
             <div>
               <label>Email</label>
               <input className="input mt-1" type="email" {...register('email')} autoComplete="email" />
               {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
             </div>
+
             <div>
               <label>Contraseña</label>
-              <input className="input mt-1" type="password" {...register('password')} autoComplete="new-password" />
+              <div className="flex gap-2">
+                <input
+                  className="input mt-1 flex-1"
+                  type={showPwd ? 'text' : 'password'}
+                  {...register('password')}
+                  autoComplete="new-password"
+                />
+                <button type="button" className="btn mt-1" onClick={() => setShowPwd(v => !v)}>
+                  {showPwd ? 'Ocultar' : 'Ver'}
+                </button>
+              </div>
               {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
             </div>
+
             <div>
               <label>Repite la contraseña</label>
-              <input className="input mt-1" type="password" {...register('passwordConfirm')} autoComplete="new-password" />
+              <div className="flex gap-2">
+                <input
+                  className="input mt-1 flex-1"
+                  type={showPwd2 ? 'text' : 'password'}
+                  {...register('passwordConfirm')}
+                  autoComplete="new-password"
+                />
+                <button type="button" className="btn mt-1" onClick={() => setShowPwd2(v => !v)}>
+                  {showPwd2 ? 'Ocultar' : 'Ver'}
+                </button>
+              </div>
               {errors.passwordConfirm && <p className="text-red-600 text-sm mt-1">{errors.passwordConfirm.message}</p>}
             </div>
+
             <div>
               <label>Rol</label>
               <select className="input mt-1" {...register('role')}>
@@ -73,10 +127,12 @@ export default function Register() {
               </select>
               {errors.role && <p className="text-red-600 text-sm mt-1">{errors.role.message}</p>}
             </div>
+
             <button disabled={isSubmitting} className="btn btn-primary w-full mt-2">
-              {isSubmitting ? 'Creando...' : 'Crear cuenta'}
+              {isSubmitting ? 'Creando…' : 'Crear cuenta'}
             </button>
           </form>
+
           <p className="text-sm text-gray-600 mt-6">
             ¿Ya tienes cuenta? <Link to="/login" className="text-blue-700 hover:underline">Iniciar sesión</Link>
           </p>
