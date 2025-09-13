@@ -45,6 +45,8 @@ services:
       - api
     restart: unless-stopped
 
+  
+
   pgadmin:
     image: dpage/pgadmin4:8
     container_name: fono-suite-pgadmin
