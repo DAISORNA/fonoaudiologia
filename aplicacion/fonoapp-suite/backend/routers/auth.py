@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from ..core.database import get_db
 from ..core.security import hash_password
 from ..schemas.auth import UserCreate, UserOut
-from ..models import User  # ajusta el import según tu estructura
+from ..models import User  
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
