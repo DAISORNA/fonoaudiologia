@@ -7,8 +7,8 @@
 ```bash
 docker compose up --build
 ```
-- UI: http://localhost:8080
+- UI: http://localhost:8081
 - API: proxied en `/api`
-- PgAdmin: http://localhost:5050
+- PgAdmin: http://localhost:5051
 
 > Cambia `JWT_SECRET` en `docker-compose.yml` para producción.
