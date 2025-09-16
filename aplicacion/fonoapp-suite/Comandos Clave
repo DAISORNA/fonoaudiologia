@@ -1,0 +1,82 @@
+Iniciar / detener / estado
+docker compose up -d --build          # Levanta todo en segundo plano y reconstruye si hace falta
+docker compose down                   # Apaga todo (conserva datos de Postgres)
+docker compose down -v                # Apaga y BORRA volúmenes (pierdes la BD) ⚠️
+docker compose ps                     # Muestra estado de los servicios
+docker compose restart api web        # Reinicia solo API y Web
+
+Logs (diagnóstico)
+docker compose logs -f api            # Ver logs en vivo de la API (Ctrl+C para salir)
+docker compose logs -f web            # Ver logs en vivo del frontend/nginx
+docker compose logs -n 200 api        # Últimas 200 líneas de logs de la API
+
+Comprobaciones rápidas en navegador
+start http://localhost:8081           # Abre la app (frontend)
+start http://localhost:8081/api/health# Health de la API a través de Nginx → {"status":"ok"}
+start http://localhost:8081/api/docs  # Swagger de la API
+start http://localhost:5051           # pgAdmin web (email/password del compose)
+
+Probar endpoints (sin la UI)
+# Health directo vía Nginx
+curl.exe -i http://localhost:8081/api/health
+
+# Registro de usuario (ajusta email antes de probar)
+curl.exe -i -X POST http://localhost:8081/api/auth/register `
+  -H "Content-Type: application/json" `
+  -d '{ "full_name":"Demo User","email":"demo1@demo.com","password":"secret12","role":"therapist" }'
+
+# Login
+curl.exe -i -X POST http://localhost:8081/api/auth/login `
+  -H "Content-Type: application/json" `
+  -d '{ "email":"demo1@demo.com","password":"secret12" }'
+
+# Llamada autenticada (reemplaza XXX por el access_token del login)
+$env:TOKEN="XXX"
+curl.exe -i http://localhost:8081/api/auth/me -H "Authorization: Bearer $env:TOKEN"
+
+Verificar variables dentro del contenedor API
+docker compose exec api sh -lc 'echo $DATABASE_URL'     # Debe apuntar a db:5432/fonoapp
+docker compose exec api sh -lc 'printf "%s\n" "$CORS_ORIGINS"'  # Debe ser la lista JSON que pusiste
+
+Consultar la base de datos (psql dentro del contenedor)
+# Listar tablas del esquema public
+docker compose exec db psql -U fono -d fonoapp -c "\dt public.*"
+
+# Ver columnas de la tabla users
+docker compose exec db psql -U fono -d fonoapp -c "SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_schema='public' AND table_name='users' ORDER BY ordinal_position;"
+
+# Ver últimos usuarios creados
+docker compose exec db psql -U fono -d fonoapp -c "SELECT id, email, role, created_at FROM public.users ORDER BY id DESC LIMIT 20;"
+
+Reconstrucciones específicas
+docker compose build --no-cache api   # Reconstruye solo la imagen de la API (por cambios en requirements, código backend)
+docker compose build --no-cache web   # Reconstruye solo el frontend (por cambios en build o nginx.conf)
+docker builder prune -af              # Limpia caché de builds (si algo quedó “raro”)
+
+Comandos útiles de diagnóstico
+docker compose exec api sh -lc 'python -c "import email_validator; print(email_validator.__version__)"'  # Verifica que está instalada
+docker compose exec api sh -lc 'uvicorn --version'                   # Ver versión de Uvicorn en la imagen
+docker system df                                                     # Espacio usado por Docker
+
+pgAdmin (recordatorio de conexión)
+
+Host: db
+
+Port: 5432
+
+Database: fonoapp
+
+User: fono
+
+Password: password
+
+(O desde el host, si usas pgAdmin de escritorio: Host localhost, Port 5432.)
+
+Si ves un 502
+curl.exe -i http://localhost:8081/api/health   # Si aquí hay 502, Nginx no llega a la API
+docker compose logs -n 100 web                  # Revisa Nginx
+docker compose logs -n 100 api                  # Revisa si la API arrancó (Uvicorn running...)
+
+Reset total (arrancar desde cero) ⚠️ borra datos
+docker compose down -v
+docker compose up -d --build
