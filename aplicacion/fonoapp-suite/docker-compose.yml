@@ -4,13 +4,27 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: fono-suite-api
+    # Lee variables desde .env (en la raíz, junto a este compose)
+    env_file:
+      - .env
+    # Overrides rápidos (opcional)
     environment:
-      DATABASE_URL: postgresql+psycopg2://fono:password@db:5432/fonoapp
-      JWT_SECRET: PLEASE_CHANGE_ME
-      # JSON válido. Ajusta puertos si usas otros.
+      # Si prefieres sobrescribir aquí, puedes dejar estas:
+      # DATABASE_URL: postgresql+psycopg2://fono:password@db:5432/fonoapp
+      # JWT_SECRET: PLEASE_CHANGE_ME
+      # JSON válido para CORS:
       CORS_ORIGINS: '["http://localhost:8081","http://localhost:5173"]'
+    command: >
+      uvicorn backend.main:app
+      --host 0.0.0.0
+      --port 8000
+      --proxy-headers
+    ports:
+      - "8000:8000"   # ← publica el API en tu máquina
     volumes:
       - storage:/app/backend/storage
+      # Para desarrollo con autoreload, descomenta:
+      # - .:/app
     depends_on:
       db:
         condition: service_healthy
@@ -44,8 +58,6 @@ services:
     depends_on:
       - api
     restart: unless-stopped
-
-  
 
   pgadmin:
     image: dpage/pgadmin4:8

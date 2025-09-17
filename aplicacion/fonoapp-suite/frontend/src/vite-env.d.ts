@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_API_BASE?: string
-  // agrega aquí más vars VITE_... si las usas
+  /** Base URL del API. En dev: '/api'. En prod: '/api' (Nginx) o 'https://api.tu-dominio.com'. */
+  readonly VITE_API_BASE: string
 }
 
 interface ImportMeta {

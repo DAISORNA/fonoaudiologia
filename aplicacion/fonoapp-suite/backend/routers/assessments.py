@@ -1,76 +1,71 @@
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+# backend/schemas/assessment.py
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field
 
-from ..core.database import get_db
-from ..models.assessment import AssessmentTemplate, AssessmentResult
-from ..schemas.assessment import (
-    AssessmentTemplateCreate, AssessmentTemplateUpdate, AssessmentTemplateOut,
-    AssessmentResultCreate, AssessmentResultUpdate, AssessmentResultOut
-)
-from ..core.deps import require_roles
+# ---------- TEMPLATES ----------
 
-router = APIRouter(prefix="/assessments", tags=["assessments"])
+class AssessmentTemplateBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    # RENOMBRADO: usa schema_ en Python, pero "schema" en JSON
+    schema_: Dict[str, Any] = Field(..., alias="schema")
 
-@router.post("/templates", response_model=AssessmentTemplateOut, status_code=status.HTTP_201_CREATED)
-def create_template(
-    data: AssessmentTemplateCreate,
-    db: Session = Depends(get_db),
-    user=Depends(require_roles("admin","therapist"))
-):
-    try:
-        t = AssessmentTemplate(**data.dict())
-        db.add(t); db.commit(); db.refresh(t)
-        return t
-    except SQLAlchemyError:
-        db.rollback()
-        raise HTTPException(500, "Database error creating template")
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True  # permite usar schema_ al crear desde Python
 
-@router.get("/templates", response_model=List[AssessmentTemplateOut])
-def list_templates(
-    db: Session = Depends(get_db),
-    user=Depends(require_roles("admin","therapist","assistant")),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=500),
-):
-    return db.query(AssessmentTemplate).order_by(AssessmentTemplate.id.desc()).offset(skip).limit(limit).all()
 
-@router.get("/templates/{id}", response_model=AssessmentTemplateOut)
-def get_template(id: int, db: Session = Depends(get_db), user=Depends(require_roles("admin","therapist","assistant"))):
-    t = db.get(AssessmentTemplate, id)
-    if not t:
-        raise HTTPException(404, "Template not found")
-    return t
+class AssessmentTemplateCreate(AssessmentTemplateBase):
+    pass
 
-@router.post("/results", response_model=AssessmentResultOut, status_code=status.HTTP_201_CREATED)
-def create_result(
-    data: AssessmentResultCreate,
-    db: Session = Depends(get_db),
-    user=Depends(require_roles("admin","therapist","assistant"))
-):
-    try:
-        r = AssessmentResult(**data.dict())
-        db.add(r); db.commit(); db.refresh(r)
-        return r
-    except SQLAlchemyError:
-        db.rollback()
-        raise HTTPException(500, "Database error creating result")
 
-@router.get("/results/patient/{patient_id}", response_model=List[AssessmentResultOut])
-def list_results(
-    patient_id: int,
-    db: Session = Depends(get_db),
-    user=Depends(require_roles("admin","therapist","assistant")),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=500),
-):
-    q = db.query(AssessmentResult).filter(AssessmentResult.patient_id==patient_id)
-    return q.order_by(AssessmentResult.id.desc()).offset(skip).limit(limit).all()
+class AssessmentTemplateUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    schema_: Optional[Dict[str, Any]] = Field(None, alias="schema")
 
-@router.get("/results/{id}", response_model=AssessmentResultOut)
-def get_result(id: int, db: Session = Depends(get_db), user=Depends(require_roles("admin","therapist","assistant"))):
-    r = db.get(AssessmentResult, id)
-    if not r:
-        raise HTTPException(404, "Result not found")
-    return r
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
+
+class AssessmentTemplateOut(AssessmentTemplateBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
+# ---------- RESULTS (ajusta si también usabas 'schema' aquí) ----------
+
+class AssessmentResultBase(BaseModel):
+    patient_id: int
+    template_id: int
+    # si aquí también usabas "schema", aplica el mismo patrón
+    data: Dict[str, Any]  # o schema_: Dict[str, Any] = Field(..., alias="schema")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
+
+class AssessmentResultCreate(AssessmentResultBase):
+    pass
+
+
+class AssessmentResultUpdate(BaseModel):
+    patient_id: Optional[int] = None
+    template_id: Optional[int] = None
+    data: Optional[Dict[str, Any]] = None  # o schema_ con alias si lo necesitas
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
+
+class AssessmentResultOut(AssessmentResultBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
