@@ -1,16 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+
 from ..core.database import get_db
 from ..core.security import hash_password
 from ..schemas.auth import UserCreate, UserOut
-from ..models import User  
+from ..models.user import User  # <-- fix
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    # Doble defensa: chequeo previo y control de unique constraint
     existing = db.query(User).filter(User.email == user_in.email).first()
     if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
@@ -26,7 +26,6 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         db.commit()
     except IntegrityError:
         db.rollback()
-        # Si otro proceso insertó el mismo email en paralelo
         raise HTTPException(status_code=409, detail="Email already registered")
     db.refresh(user)
     return user

@@ -51,7 +51,7 @@ services:
     image: dpage/pgadmin4:8
     container_name: fono-suite-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: dortegana@gmail.com
+      PGADMIN_DEFAULT_EMAIL: dbanetworktest@gmail.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5051:80"
