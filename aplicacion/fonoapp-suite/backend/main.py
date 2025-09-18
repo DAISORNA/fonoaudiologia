@@ -4,20 +4,20 @@ from fastapi.staticfiles import StaticFiles
 
 from .core.config import settings
 from .core.database import Base, engine
-from . import models  # ok si __init__.py importa cada modelo
+from . import models  # asegura que __init__ importa todos los modelos
 
 from .routers import (
     auth, patients, appointments, plans, assessments, assignments, files, realtime
 )
 
 def init_db():
-    Base.metadata.create_all(bind=engine)  # solo DEV; en prod usa Alembic
+    Base.metadata.create_all(bind=engine)  # DEV: en prod usar Alembic
 
 app = FastAPI(title="FonoApp Suite API", version="1.2.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,  # <-- FIX: mayúsculas
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,6 +27,7 @@ app.add_middleware(
 def on_startup():
     init_db()
 
+# Cada router ya define su prefix internamente (p. ej., /auth)
 app.include_router(auth.router)
 app.include_router(patients.router)
 app.include_router(appointments.router)

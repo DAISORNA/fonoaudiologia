@@ -3,16 +3,17 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from ..core.database import get_db
-from ..core.security import hash_password
-from ..schemas.auth import UserCreate, UserOut
-from ..models.user import User  # <-- fix
+from ..core.security import hash_password, verify_password, create_access_token
+from ..core.deps import get_current_user
+from ..schemas.auth import UserCreate, UserOut, LoginIn, Token
+from ..models.user import User  # importa el modelo concreto
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == user_in.email).first()
-    if existing:
+    # Pre-chequeo
+    if db.query(User).filter(User.email == user_in.email).first():
         raise HTTPException(status_code=409, detail="Email already registered")
 
     user = User(
@@ -29,3 +30,15 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=409, detail="Email already registered")
     db.refresh(user)
     return user
+
+@router.post("/login", response_model=Token)
+def login(data: LoginIn, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user or not verify_password(data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    token = create_access_token(subject=user.email, role=user.role)
+    return {"access_token": token, "token_type": "bearer"}
+
+@router.get("/me", response_model=UserOut)
+def me(current_user: User = Depends(get_current_user)):
+    return current_user
