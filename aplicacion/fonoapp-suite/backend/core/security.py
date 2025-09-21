@@ -1,3 +1,4 @@
+# backend/core/security.py
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from jose import jwt, JWTError, ExpiredSignatureError
@@ -40,7 +41,6 @@ def create_access_token(
 
 def decode_token(token: str) -> dict | None:
     try:
-        # Leeway para pequeños desajustes de reloj
         options = {"verify_aud": bool(settings.JWT_AUDIENCE)}
         return jwt.decode(
             token,
@@ -49,11 +49,8 @@ def decode_token(token: str) -> dict | None:
             audience=settings.JWT_AUDIENCE if settings.JWT_AUDIENCE else None,
             issuer=settings.JWT_ISSUER if settings.JWT_ISSUER else None,
             options=options,
-            leeway=settings.JWT_LEEWAY_SECONDS,
         )
     except ExpiredSignatureError:
-        # Token vencido; el caller (deps) devolverá 401
         return None
     except JWTError:
-        # Firma inválida / claims malformadas
         return None
