@@ -1,75 +1,106 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { api } from '../lib/api'
+// frontend/src/pages/PatientDetail.tsx
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getPatient, updatePatient, softDeletePatient, restorePatient, hardDeletePatient, me } from '../lib/api';
 
 export default function PatientDetail(){
-  const { id } = useParams()
-  const [patient,setPatient] = useState<any>(null)
-  const [plans,setPlans] = useState<any[]>([])
-  const [logs,setLogs] = useState<any[]>([])
-  const [assigns,setAssigns] = useState<any[]>([])
-  const [newGoal,setNewGoal] = useState('')
-  const [planTitle,setPlanTitle] = useState('Plan inicial')
-  const [progress,setProgress] = useState('')
+  const { id } = useParams();
+  const nav = useNavigate();
+  const [patient,setPatient] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName]   = useState('');
+  const [cedula, setCedula]       = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [diagnosis, setDiagnosis] = useState('');
+  const [notes, setNotes]         = useState('');
 
   async function load(){
-    const p = await api.get(`/patients/${id}`); setPatient(p.data)
-    const pl = await api.get(`/plans/patient/${id}`); setPlans(pl.data)
-    if(pl.data[0]){ const lg = await api.get(`/plans/${pl.data[0].id}/logs`); setLogs(lg.data) }
-    const asg = await api.get(`/assignments/patient/${id}`); setAssigns(asg.data)
-  }
-  useEffect(()=>{ load() },[id])
-
-  async function createPlan(){
-    const plan = await api.post('/plans/', { patient_id:Number(id), title: planTitle, goals: newGoal ? [{title:newGoal, target:10, metric:'aciertos'}] : [] })
-    setPlanTitle('Plan'); setNewGoal(''); load()
-  }
-  async function addLog(){
-    if(!plans[0]) return
-    const obj:any = {}; obj[0]= Number(progress||0)
-    await api.post(`/plans/${plans[0].id}/logs`, { plan_id: plans[0].id, progress: obj, notes: 'Sesión' })
-    setProgress(''); load()
-  }
-  async function addAssign(){
-    const title = prompt('Título de tarea para casa'); if(!title) return
-    await api.post('/assignments/', { patient_id:Number(id), title })
-    load()
+    const p = await getPatient(Number(id));
+    setPatient(p);
+    setFirstName(p.first_name||''); setLastName(p.last_name||'');
+    setCedula(p.cedula||''); setBirthDate(p.birth_date||'');
+    setDiagnosis(p.diagnosis||''); setNotes(p.notes||'');
   }
 
-  if(!patient) return <p>Cargando...</p>
+  useEffect(()=>{ (async()=>{ try{ const u=await me(); setIsAdmin(u?.role==='admin'); }catch{} })(); },[]);
+  useEffect(()=>{ load(); },[id]);
+
+  async function save(){
+    await updatePatient(Number(id), {
+      first_name: firstName,
+      last_name: lastName,
+      cedula: cedula || null,
+      birth_date: birthDate || null,
+      diagnosis: diagnosis || null,
+      notes: notes || null,
+    });
+    load();
+  }
+
+  async function del(){
+    if (!confirm('¿Eliminar (soft-delete) este paciente?')) return;
+    await softDeletePatient(Number(id));
+    load();
+  }
+
+  async function restore(){
+    await restorePatient(Number(id));
+    load();
+  }
+
+  async function hardDel(){
+    if (!confirm('⚠ Esta acción borra definitivamente. ¿Continuar?')) return;
+    await hardDeletePatient(Number(id));
+    nav('/app/patients');
+  }
+
+  if(!patient) return <p>Cargando…</p>;
   return (
     <div className="grid gap-6">
       <div className="card p-6">
-        <h2 className="text-lg font-semibold mb-2">{patient.first_name} {patient.last_name}</h2>
-        <p className="text-sm text-gray-600">{patient.diagnosis || 'Sin diagnóstico'}</p>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Paciente #{patient.id} {patient.deleted_at && <span className="ml-2 text-xs text-red-600">[ELIMINADO]</span>}</h2>
+          <div className="flex gap-2">
+            {!patient.deleted_at && <button className="btn" onClick={del}>Eliminar</button>}
+            {patient.deleted_at && <button className="btn" onClick={restore}>Restaurar</button>}
+            {isAdmin && <button className="btn btn-outline" onClick={hardDel}>Borrar definitivo</button>}
+          </div>
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <section className="card p-6">
-          <h3 className="font-semibold mb-3">Plan de tratamiento</h3>
-          <div className="grid gap-2">
-            <input className="input" placeholder="Título del plan" value={planTitle} onChange={e=>setPlanTitle(e.target.value)}/>
-            <input className="input" placeholder="Objetivo (opcional)" value={newGoal} onChange={e=>setNewGoal(e.target.value)}/>
-            <button className="btn btn-primary" onClick={createPlan}>Crear plan</button>
+      <div className="card p-6">
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label>Nombre</label>
+            <input className="input mt-1" value={firstName} onChange={e=>setFirstName(e.target.value)} />
           </div>
-          <div className="mt-4 text-sm text-gray-600">{plans.length} plan(es)</div>
-        </section>
-
-        <section className="card p-6">
-          <h3 className="font-semibold mb-3">Progreso (sesiones)</h3>
-          <div className="grid gap-2">
-            <input className="input" placeholder="Valor progreso (0-10)" value={progress} onChange={e=>setProgress(e.target.value)}/>
-            <button className="btn btn-primary" onClick={addLog}>Añadir sesión</button>
+          <div>
+            <label>Apellido</label>
+            <input className="input mt-1" value={lastName} onChange={e=>setLastName(e.target.value)} />
           </div>
-          <ul className="mt-4 text-sm text-gray-600">{logs.map((l:any)=>(<li key={l.id}>Sesión #{l.id} · {JSON.stringify(l.progress)}</li>))}</ul>
-        </section>
-
-        <section className="card p-6">
-          <h3 className="font-semibold mb-3">Tareas para casa</h3>
-          <button className="btn btn-primary" onClick={addAssign}>Nueva tarea</button>
-          <ul className="mt-4 text-sm text-gray-600">{assigns.map((a:any)=>(<li key={a.id}>• {a.title} ({a.status})</li>))}</ul>
-        </section>
+          <div>
+            <label>Cédula</label>
+            <input className="input mt-1" value={cedula} onChange={e=>setCedula(e.target.value)} />
+          </div>
+          <div>
+            <label>Fecha nacimiento</label>
+            <input className="input mt-1" type="date" value={birthDate || ''} onChange={e=>setBirthDate(e.target.value)} />
+          </div>
+          <div className="md:col-span-2">
+            <label>Diagnóstico</label>
+            <input className="input mt-1" value={diagnosis || ''} onChange={e=>setDiagnosis(e.target.value)} />
+          </div>
+          <div className="md:col-span-2">
+            <label>Notas</label>
+            <textarea className="input mt-1" value={notes || ''} onChange={e=>setNotes(e.target.value)} />
+          </div>
+          <div className="md:col-span-2 flex justify-end">
+            <button className="btn btn-primary" onClick={save}>Guardar cambios</button>
+          </div>
+        </div>
       </div>
     </div>
-  )
+  );
 }
