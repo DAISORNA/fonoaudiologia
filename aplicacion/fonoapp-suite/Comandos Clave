@@ -5,6 +5,10 @@ docker compose down -v                # Apaga y BORRA volúmenes (pierdes la BD)
 docker compose ps                     # Muestra estado de los servicios
 docker compose restart api web        # Reinicia solo API y Web
 
+Recompila y levanta el servicio web:
+docker compose build --no-cache web
+docker compose up -d web
+
 Logs (diagnóstico)
 docker compose logs -f api            # Ver logs en vivo de la API (Ctrl+C para salir)
 docker compose logs -f web            # Ver logs en vivo del frontend/nginx
@@ -80,3 +84,43 @@ docker compose logs -n 100 api                  # Revisa si la API arrancó (Uvi
 Reset total (arrancar desde cero) ⚠️ borra datos
 docker compose down -v
 docker compose up -d --build
+
+********************************************
+Validar Base de Datos
+
+Ver informacion de la tabla patients:
+
+SELECT id, first_name, last_name, cedula, cedula_norm, diagnosis, created_at
+FROM patients
+WHERE deleted_at IS NULL
+ORDER BY id DESC;
+
+Listar tablas del esquema public:
+
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+ORDER BY table_name;
+
+Listar tablas de todos los esquemas (excepto del sistema):
+
+SELECT table_schema, table_name
+FROM information_schema.tables
+WHERE table_type='BASE TABLE'
+  AND table_schema NOT IN ('pg_catalog','information_schema')
+ORDER BY table_schema, table_name;
+
+Ver estructura de una tabla (columnas y tipos):
+
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_schema='public' AND table_name='patients'
+ORDER BY ordinal_position;
+
+Si necesitas además vistas o secuencias:
+
+-- Vistas
+SELECT table_name FROM information_schema.views WHERE table_schema='public';
+
+-- Secuencias
+SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema='public';

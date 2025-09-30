@@ -62,13 +62,20 @@ export default function Register() {
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
-      <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
-        <div className="max-w-md p-10">
+      {/* Panel izquierdo con imagen de fondo */}
+      <div className="hidden md:flex items-center justify-center text-white relative">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/img/fono.png')" }}
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative max-w-md p-10">
           <h1 className="text-4xl font-bold mb-4">Crea tu cuenta</h1>
           <p className="text-blue-100">Selecciona tu rol y empieza a trabajar.</p>
         </div>
       </div>
 
+      {/* Panel derecho con el formulario */}
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-md card p-8">
           <h2 className="text-2xl font-semibold mb-6">Registro</h2>

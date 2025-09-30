@@ -1,54 +1,41 @@
-from pydantic import BaseModel, validator
-from datetime import date, datetime
-import re
+from datetime import date
+from typing import Optional
+from pydantic import BaseModel, constr, validator
 
-_CEDULA_ALLOWED = re.compile(r"^[A-Za-z0-9.\- ]{5,50}$")  # whitelisting
-def _normalize_cedula(value: str | None) -> str | None:
-    if value is None:
-        return None
-    # quita todo lo que no sea alfanumérico, a mayúsculas
-    only = re.sub(r"[^0-9A-Za-z]+", "", value).upper()
-    return only or None
+
+# tipo acotado para cédula (ajusta longitudes si lo necesitas)
+Cedula = constr(strip_whitespace=True, min_length=3, max_length=64)
+
 
 class PatientBase(BaseModel):
     first_name: str
     last_name: str
-    birth_date: date | None = None
-    diagnosis: str | None = None
-    notes: str | None = None
-    user_id: int | None = None
+    birth_date: Optional[date] = None
+    diagnosis: Optional[str] = None
+    notes: Optional[str] = None
+    user_id: Optional[int] = None
 
-    # NUEVO: cedula (opcional pero validada)
-    cedula: str | None = None
+    # valor ingresado por el usuario
+    cedula: Optional[Cedula] = None
 
-    @validator("first_name", "last_name")
-    def _names_len(cls, v: str):
-        v = (v or "").strip()
-        if not (1 <= len(v) <= 120):
-            raise ValueError("Longitud inválida")
-        return v
+    @validator("first_name", "last_name", "diagnosis", "notes", "cedula", pre=True)
+    def _strip_strings(cls, v):
+        return v.strip() if isinstance(v, str) else v
 
-    @validator("cedula")
-    def _cedula_ok(cls, v: str | None):
-        if v is None or v == "":
-            return None
-        vv = v.strip()
-        if not _CEDULA_ALLOWED.match(vv):
-            raise ValueError("Cédula inválida (use solo letras/números/puntos/guiones/espacios)")
-        if _normalize_cedula(vv) is None:
-            raise ValueError("Cédula inválida")
-        return vv
 
 class PatientCreate(PatientBase):
     pass
 
+
 class PatientUpdate(PatientBase):
+    # todos los campos opcionales para parches completos (PUT) simples
     pass
+
 
 class PatientOut(PatientBase):
     id: int
-    created_at: datetime | None = None
-    deleted_at: datetime | None = None
+    # además devolvemos la versión normalizada si existe
+    cedula_norm: Optional[str] = None
 
     class Config:
         orm_mode = True
