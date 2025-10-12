@@ -1,10 +1,9 @@
 // frontend/src/pages/Chat.tsx
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type ConnState = "idle" | "connecting" | "open" | "closed";
 
-const WS_BASE = (import.meta.env.VITE_WS_BASE ?? "").trim() || "/api"; 
-// En producción: "/api". En dev (Vite sin Nginx) podrías usar "ws://localhost:8000" como base.
+const WS_BASE = (import.meta.env.VITE_WS_BASE ?? "").trim() || "/api";
 
 export default function Chat() {
   const [room, setRoom] = useState("lobby");
@@ -13,50 +12,59 @@ export default function Chat() {
   const inputRef = useRef<HTMLInputElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const retryRef = useRef(0);
+  const closedByUsRef = useRef(false);
 
   // arma la URL del WS según si WS_BASE es relativo (/api) o absoluto (ws://host:port)
   const url =
     WS_BASE.startsWith("ws")
       ? `${WS_BASE}/ws/chat/${encodeURIComponent(room)}`
-      : `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}${WS_BASE}/ws/chat/${encodeURIComponent(room)}`;
+      : `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}${
+          WS_BASE
+        }/ws/chat/${encodeURIComponent(room)}`;
+
+  // helper para no anidar callback dentro del handler
+  const appendMessage = useCallback((msg: string) => {
+    setList(prev => [...prev, msg]);
+  }, []);
+
+  // connect fuera de useEffect ↓
+  const connect = useCallback(() => {
+    setState("connecting");
+    const ws = new WebSocket(url);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      retryRef.current = 0;
+      setState("open");
+    };
+
+    ws.onmessage = (e) => {
+      appendMessage(e.data);
+    };
+
+    ws.onclose = () => {
+      setState("closed");
+      if (!closedByUsRef.current) {
+        const wait = Math.min(5000, 500 * (retryRef.current + 1)); // backoff simple (máx ~5s)
+        retryRef.current++;
+        setTimeout(connect, wait);
+      }
+    };
+
+    ws.onerror = () => {
+      // onclose maneja la reconexión
+    };
+  }, [url, appendMessage]);
 
   useEffect(() => {
-    let closedByUs = false;
+    closedByUsRef.current = false;
     connect();
 
-    function connect() {
-      setState("connecting");
-      const ws = new WebSocket(url);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        retryRef.current = 0;
-        setState("open");
-      };
-
-      ws.onmessage = (e) => setList((prev) => [...prev, e.data]);
-
-      ws.onclose = () => {
-        setState("closed");
-        if (!closedByUs) {
-          // reconexión exponencial simple (máx ~5s)
-          const wait = Math.min(5000, 500 * (retryRef.current + 1));
-          retryRef.current++;
-          setTimeout(connect, wait);
-        }
-      };
-
-      ws.onerror = () => {
-        // dejar que onclose maneje la reconexión
-      };
-    }
-
     return () => {
-      closedByUs = true;
+      closedByUsRef.current = true;
       wsRef.current?.close();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url]); // reconecta si cambia la sala o la base
+  }, [connect]);
 
   const send = () => {
     const v = inputRef.current?.value?.trim();
@@ -81,9 +89,7 @@ export default function Chat() {
       </div>
       <div className="h-64 overflow-auto border rounded-lg p-3 bg-white mb-3">
         {list.map((m, i) => (
-          <div key={i} className="text-sm py-0.5">
-            • {m}
-          </div>
+          <div key={i} className="text-sm py-0.5">• {m}</div>
         ))}
       </div>
       <div className="flex gap-2">
