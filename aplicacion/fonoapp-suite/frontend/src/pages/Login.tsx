@@ -26,7 +26,7 @@ export default function Login() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // Enviar como form-url-encoded para /auth/login (OAuth2PasswordRequestForm)
+      // /auth/login espera form-url-encoded (OAuth2PasswordRequestForm)
       const form = new URLSearchParams()
       form.append('username', data.email)
       form.append('password', data.password)
@@ -48,8 +48,9 @@ export default function Login() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url('/img/fono.png')" }}
+          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/40" aria-hidden="true" />
         <div className="relative max-w-md p-10">
           <h1 className="text-4xl font-bold mb-4">FonoApp Suite</h1>
           <p className="text-blue-100">Plataforma integral para fonoaudiología.</p>
@@ -60,24 +61,56 @@ export default function Login() {
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-md card p-8">
           <h2 className="text-2xl font-semibold mb-6">Iniciar sesión</h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" autoComplete="off">
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" autoComplete="off" noValidate>
             <div>
-              <label>Email</label>
-              <input className="input mt-1" type="email" {...register('email')} />
-              {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                name="email"
+                className="input mt-1"
+                type="email"
+                autoComplete="email"
+                aria-invalid={!!errors.email || undefined}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                {...register('email')}
+              />
+              {errors.email && (
+                <p id="email-error" className="text-red-600 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
+
             <div>
-              <label>Contraseña</label>
-              <input className="input mt-1" type="password" {...register('password')} />
-              {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
+              <label htmlFor="password">Contraseña</label>
+              <input
+                id="password"
+                name="password"
+                className="input mt-1"
+                type="password"
+                autoComplete="current-password"
+                aria-invalid={!!errors.password || undefined}
+                aria-describedby={errors.password ? 'password-error' : undefined}
+                {...register('password')}
+              />
+              {errors.password && (
+                <p id="password-error" className="text-red-600 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
+
             <button disabled={isSubmitting} className="btn btn-primary w-full mt-2">
-              {isSubmitting ? 'Entrando...' : 'Entrar'}
+              {isSubmitting ? 'Entrando…' : 'Entrar'}
             </button>
           </form>
 
           <p className="text-sm text-gray-600 mt-6">
-            ¿No tienes cuenta? <Link to="/register" className="text-blue-700 hover:underline">Crear cuenta</Link>
+            ¿No tienes cuenta?{' '}
+            <Link to="/register" className="text-blue-700 hover:underline">
+              Crear cuenta
+            </Link>
           </p>
         </div>
       </div>
