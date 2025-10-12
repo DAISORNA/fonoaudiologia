@@ -1,12 +1,11 @@
 # backend/routers/files.py
 from __future__ import annotations
 
-from typing import List, Optional
-import os
-import uuid
-import shutil
-import mimetypes
+from typing import Optional, List
+from uuid import uuid4
+from pathlib import Path
 
+import aiofiles
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -16,43 +15,67 @@ from ..core.deps import require_roles
 from ..models.file import MediaFile
 from ..schemas.file import MediaFileOut
 
+# --- Constantes y mensajes reutilizables (reduce duplicación) ---
+STORAGE_DIR = Path("backend/storage")
+ALLOWED_EXTS = {".png", ".jpg", ".jpeg", ".pdf", ".mp3", ".mp4", ".wav", ".webm", ".docx", ".xlsx", ".pptx", ".txt"}
+MAX_BYTES = 50 * 1024 * 1024  # 50MB
+
+ERR_EXT_NOT_ALLOWED = "File extension {ext} not allowed"
+ERR_TOO_LARGE = "File too large (>50MB)"
+ERR_DB_CREATE = "Database error while saving file"
+
+STORAGE_DIR.mkdir(parents=True, exist_ok=True)
+
 router = APIRouter(prefix="/files", tags=["files"])
 
-# Carpeta de almacenamiento (constante, no controlada por el usuario)
-STORAGE_DIR = os.path.abspath("backend/storage")
-os.makedirs(STORAGE_DIR, exist_ok=True)
 
-# Reglas
-ALLOWED_EXTS = {
-    ".png", ".jpg", ".jpeg", ".pdf", ".mp3", ".mp4", ".wav", ".webm", ".docx", ".xlsx", ".pptx", ".txt"
-}
-MAX_BYTES = 50 * 1024 * 1024  # 50 MB
-
-def _safe_join(base: str, name: str) -> str:
+# ---------- Helpers pequeños (baja complejidad en el endpoint) ----------
+def _safe_join(base: Path, name: str) -> Path:
     """
-    Une 'name' a 'base' y comprueba que el resultado final queda dentro de 'base'.
-    Evita path traversal (../../etc).
+    Une `base` y `name` evitando path traversal. No acepta separadores ni '..' en `name`.
     """
-    # No aceptamos separadores ni rutas
-    if "/" in name or "\\" in name:
-        raise HTTPException(status_code=400, detail="Invalid file name")
-    candidate = os.path.abspath(os.path.join(base, name))
-    # El path resultante DEBE quedar dentro del base
-    if not candidate.startswith(base + os.sep):
-        raise HTTPException(status_code=400, detail="Invalid storage path")
+    # Aceptamos solo nombres "planos" generados por servidor
+    candidate = base.joinpath(name).resolve()
+    if base.resolve() not in candidate.parents and candidate != base.resolve():
+        # Defensive: evitar escapes fuera del directorio
+        raise HTTPException(status_code=400, detail="Invalid file path")
     return candidate
 
-def _ext_of(upload: UploadFile) -> str:
-    # Solo usamos la extensión; ignoramos el nombre original
-    original = (upload.filename or "").lower().strip()
-    _, ext = os.path.splitext(original)
-    # Normaliza ext tipo .jpeg → .jpg si quieres (opcional)
-    return ext
 
-def _guess_mime(path: str) -> str:
-    mt, _ = mimetypes.guess_type(path)
-    return mt or "application/octet-stream"
+def _ext_of(filename: Optional[str]) -> str:
+    return Path(filename or "").suffix.lower()
 
+
+def _validate_ext(ext: str) -> None:
+    if ext not in ALLOWED_EXTS:
+        raise HTTPException(status_code=400, detail=ERR_EXT_NOT_ALLOWED.format(ext=ext))
+
+
+def _server_filename(ext: str) -> str:
+    """Nombre generado por el servidor (no controlado por usuario)."""
+    return f"{uuid4().hex}{ext}"
+
+
+async def _save_stream_async(dst_path: Path, in_file: UploadFile) -> int:
+    """
+    Copia asíncronamente el stream del UploadFile a disco, limitando el tamaño.
+    Devuelve los bytes escritos.
+    """
+    written = 0
+    # Asíncrono: cumpliendo recomendación Sonar (“use an asynchronous file API”)
+    async with aiofiles.open(dst_path, "wb") as out:
+        while True:
+            chunk = await in_file.read(1024 * 1024)  # 1MiB
+            if not chunk:
+                break
+            written += len(chunk)
+            if written > MAX_BYTES:
+                raise HTTPException(status_code=413, detail=ERR_TOO_LARGE)
+            await out.write(chunk)
+    return written
+
+
+# ------------------- Endpoints -------------------
 @router.post("/upload", response_model=MediaFileOut, status_code=status.HTTP_201_CREATED)
 async def upload(
     patient_id: Optional[int] = None,
@@ -60,60 +83,51 @@ async def upload(
     db: Session = Depends(get_db),
     user=Depends(require_roles("admin", "therapist", "assistant")),
 ):
-    # 1) Validación de extensión
-    ext = _ext_of(f)
-    if ext not in ALLOWED_EXTS:
-        raise HTTPException(status_code=400, detail=f"File extension {ext or 'unknown'} not allowed")
+    """
+    Sube un archivo al almacenamiento local de manera segura:
+    - valida extensión permitida,
+    - genera nombre de archivo por el servidor,
+    - guarda por streaming asíncrono con límite de tamaño,
+    - registra el metadato en DB.
+    """
+    ext = _ext_of(f.filename)
+    _validate_ext(ext)
 
-    # 2) Nombre generado por el servidor (no controlado por el usuario)
-    fname = f"{uuid.uuid4().hex}{ext}"
-
-    # 3) Construcción de ruta segura (anti traversal)
+    fname = _server_filename(ext)          # nombre no controlado por usuario
     full_path = _safe_join(STORAGE_DIR, fname)
 
-    # 4) Escritura por streaming + límite de tamaño
-    written = 0
     try:
-        # write safely
-        with open(full_path, "wb") as out:
-            while True:
-                chunk = await f.read(1024 * 1024)  # 1 MiB
-                if not chunk:
-                    break
-                written += len(chunk)
-                if written > MAX_BYTES:
-                    raise HTTPException(status_code=413, detail="File too large (>50MB)")
-                out.write(chunk)
+        # Guardar stream en disco (async)
+        await _save_stream_async(full_path, f)
 
-        # 5) Guardar metadatos en BD (ruta pública controlada por backend)
-        m = MediaFile(
+        # Persistir metadatos
+        record = MediaFile(
             patient_id=patient_id,
-            path=f"/media/{fname}",  # ¡OJO! La ruta pública la controlamos nosotros
-            # si tu modelo tiene estos campos, puedes descomentar:
-            # original_name=(f.filename or "")[:255],
-            # mime_type=_guess_mime(full_path),
-            # size_bytes=written,
+            path=f"/media/{fname}",
+            # Si tu modelo tiene estos campos, puedes activarlos:
+            # original_name=f.filename,
+            # mime_type=f.content_type,
+            # size_bytes=size_written,
         )
-        db.add(m)
+        db.add(record)
         db.commit()
-        db.refresh(m)
-        return m
+        db.refresh(record)
+        return record
 
     except HTTPException:
-        # limpia archivo parcial
-        try:
-            if os.path.exists(full_path):
-                os.remove(full_path)
-        except Exception:
-            pass
+        # Limpieza en caso de fallo (tamaño/ext, etc.)
+        if full_path.exists():
+            try:
+                full_path.unlink()
+            except Exception:
+                pass
         raise
 
     except SQLAlchemyError:
-        # limpia archivo si la BD falla
-        try:
-            if os.path.exists(full_path):
-                os.remove(full_path)
-        except Exception:
-            pass
+        if full_path.exists():
+            try:
+                full_path.unlink()
+            except Exception:
+                pass
         db.rollback()
-        raise HTTPException(status_code=500, detail="Database error while saving file")
+        raise HTTPException(status_code=500, detail=ERR_DB_CREATE)
