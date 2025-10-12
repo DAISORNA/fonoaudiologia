@@ -14,20 +14,16 @@ export default function Chat() {
   const retryRef = useRef(0);
   const closedByUsRef = useRef(false);
 
-  // arma la URL del WS según si WS_BASE es relativo (/api) o absoluto (ws://host:port)
-  const url =
-    WS_BASE.startsWith("ws")
-      ? `${WS_BASE}/ws/chat/${encodeURIComponent(room)}`
-      : `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}${
-          WS_BASE
-        }/ws/chat/${encodeURIComponent(room)}`;
+  // ---- URL del WebSocket (sin ternarios anidados) ----
+  const proto = location.protocol === "https:" ? "wss" : "ws";
+  const isAbsoluteWS = WS_BASE.startsWith("ws"); // ws:// o wss://
+  const wsHostBase = isAbsoluteWS ? WS_BASE : `${proto}://${location.host}${WS_BASE}`;
+  const url = `${wsHostBase}/ws/chat/${encodeURIComponent(room)}`;
 
-  // helper para no anidar callback dentro del handler
   const appendMessage = useCallback((msg: string) => {
-    setList(prev => [...prev, msg]);
+    setList((prev) => [...prev, msg]);
   }, []);
 
-  // connect fuera de useEffect ↓
   const connect = useCallback(() => {
     setState("connecting");
     const ws = new WebSocket(url);
@@ -38,28 +34,25 @@ export default function Chat() {
       setState("open");
     };
 
-    ws.onmessage = (e) => {
-      appendMessage(e.data);
-    };
+    ws.onmessage = (e) => appendMessage(e.data);
 
     ws.onclose = () => {
       setState("closed");
       if (!closedByUsRef.current) {
-        const wait = Math.min(5000, 500 * (retryRef.current + 1)); // backoff simple (máx ~5s)
+        const wait = Math.min(5000, 500 * (retryRef.current + 1));
         retryRef.current++;
         setTimeout(connect, wait);
       }
     };
 
     ws.onerror = () => {
-      // onclose maneja la reconexión
+      // onclose gestiona la reconexión
     };
   }, [url, appendMessage]);
 
   useEffect(() => {
     closedByUsRef.current = false;
     connect();
-
     return () => {
       closedByUsRef.current = true;
       wsRef.current?.close();
@@ -78,22 +71,30 @@ export default function Chat() {
       <h2 className="text-lg font-semibold mb-4">
         Chat (sala: {room}) <span className="text-xs text-gray-500">· {state}</span>
       </h2>
+
       <div className="flex gap-2 mb-4">
         <input
           className="input"
           placeholder="sala"
           value={room}
           onChange={(e) => setRoom(e.target.value)}
-          disabled={state === "connecting"} // evitar cambiar sala justo mientras abre
+          disabled={state === "connecting"}
         />
       </div>
+
       <div className="h-64 overflow-auto border rounded-lg p-3 bg-white mb-3">
         {list.map((m, i) => (
           <div key={i} className="text-sm py-0.5">• {m}</div>
         ))}
       </div>
+
       <div className="flex gap-2">
-        <input ref={inputRef} className="input" placeholder="Escribe un mensaje" disabled={state !== "open"} />
+        <input
+          ref={inputRef}
+          className="input"
+          placeholder="Escribe un mensaje"
+          disabled={state !== "open"}
+        />
         <button className="btn btn-primary" onClick={send} disabled={state !== "open"}>
           Enviar
         </button>
