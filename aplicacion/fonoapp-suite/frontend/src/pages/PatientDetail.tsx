@@ -1,33 +1,54 @@
 // frontend/src/pages/PatientDetail.tsx
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getPatient, updatePatient, softDeletePatient, restorePatient, hardDeletePatient, me } from '../lib/api';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getPatient,
+  updatePatient,
+  softDeletePatient,
+  restorePatient,
+  hardDeletePatient,
+  me,
+} from "../lib/api";
 
-export default function PatientDetail(){
+export default function PatientDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const [patient,setPatient] = useState<any>(null);
+
+  const [patient, setPatient] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName]   = useState('');
-  const [cedula, setCedula]       = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [diagnosis, setDiagnosis] = useState('');
-  const [notes, setNotes]         = useState('');
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [cedula, setCedula] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [diagnosis, setDiagnosis] = useState("");
+  const [notes, setNotes] = useState("");
 
-  async function load(){
+  async function load() {
     const p = await getPatient(Number(id));
     setPatient(p);
-    setFirstName(p.first_name||''); setLastName(p.last_name||'');
-    setCedula(p.cedula||''); setBirthDate(p.birth_date||'');
-    setDiagnosis(p.diagnosis||''); setNotes(p.notes||'');
+    setFirstName(p.first_name || "");
+    setLastName(p.last_name || "");
+    setCedula(p.cedula || "");
+    setBirthDate(p.birth_date || "");
+    setDiagnosis(p.diagnosis || "");
+    setNotes(p.notes || "");
   }
 
-  useEffect(()=>{ (async()=>{ try{ const u=await me(); setIsAdmin(u?.role==='admin'); }catch{} })(); },[]);
-  useEffect(()=>{ load(); },[id]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const u = await me();
+        setIsAdmin(u?.role === "admin");
+      } catch {}
+    })();
+  }, []);
 
-  async function save(){
+  useEffect(() => {
+    load();
+  }, [id]);
+
+  async function save() {
     await updatePatient(Number(id), {
       first_name: firstName,
       last_name: lastName,
@@ -39,33 +60,51 @@ export default function PatientDetail(){
     load();
   }
 
-  async function del(){
-    if (!confirm('¿Eliminar (soft-delete) este paciente?')) return;
+  async function del() {
+    if (!confirm("¿Eliminar (soft-delete) este paciente?")) return;
     await softDeletePatient(Number(id));
     load();
   }
 
-  async function restore(){
+  async function restore() {
     await restorePatient(Number(id));
     load();
   }
 
-  async function hardDel(){
-    if (!confirm('⚠ Esta acción borra definitivamente. ¿Continuar?')) return;
+  async function hardDel() {
+    if (!confirm("⚠ Esta acción borra definitivamente. ¿Continuar?")) return;
     await hardDeletePatient(Number(id));
-    nav('/app/patients');
+    nav("/app/patients");
   }
 
-  if(!patient) return <p>Cargando…</p>;
+  if (!patient) return <p>Cargando…</p>;
+
   return (
     <div className="grid gap-6">
       <div className="card p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Paciente #{patient.id} {patient.deleted_at && <span className="ml-2 text-xs text-red-600">[ELIMINADO]</span>}</h2>
+          <h2 className="text-lg font-semibold">
+            Paciente #{patient.id}{" "}
+            {patient.deleted_at && (
+              <span className="ml-2 text-xs text-red-600">[ELIMINADO]</span>
+            )}
+          </h2>
           <div className="flex gap-2">
-            {!patient.deleted_at && <button className="btn" onClick={del}>Eliminar</button>}
-            {patient.deleted_at && <button className="btn" onClick={restore}>Restaurar</button>}
-            {isAdmin && <button className="btn btn-outline" onClick={hardDel}>Borrar definitivo</button>}
+            {!patient.deleted_at && (
+              <button className="btn" onClick={del}>
+                Eliminar
+              </button>
+            )}
+            {patient.deleted_at && (
+              <button className="btn" onClick={restore}>
+                Restaurar
+              </button>
+            )}
+            {isAdmin && (
+              <button className="btn btn-outline" onClick={hardDel}>
+                Borrar definitivo
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -73,31 +112,77 @@ export default function PatientDetail(){
       <div className="card p-6">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label>Nombre</label>
-            <input className="input mt-1" value={firstName} onChange={e=>setFirstName(e.target.value)} />
+            <label htmlFor="first_name">Nombre</label>
+            <input
+              id="first_name"
+              className="input mt-1"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              autoComplete="given-name"
+            />
           </div>
+
           <div>
-            <label>Apellido</label>
-            <input className="input mt-1" value={lastName} onChange={e=>setLastName(e.target.value)} />
+            <label htmlFor="last_name">Apellido</label>
+            <input
+              id="last_name"
+              className="input mt-1"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              autoComplete="family-name"
+            />
           </div>
+
           <div>
-            <label>Cédula</label>
-            <input className="input mt-1" value={cedula} onChange={e=>setCedula(e.target.value)} />
+            <label htmlFor="cedula">Cédula</label>
+            <input
+              id="cedula"
+              className="input mt-1"
+              value={cedula}
+              onChange={(e) => setCedula(e.target.value)}
+              autoComplete="off"
+              inputMode="text"
+            />
           </div>
+
           <div>
-            <label>Fecha nacimiento</label>
-            <input className="input mt-1" type="date" value={birthDate || ''} onChange={e=>setBirthDate(e.target.value)} />
+            <label htmlFor="birth_date">Fecha nacimiento</label>
+            <input
+              id="birth_date"
+              className="input mt-1"
+              type="date"
+              value={birthDate || ""}
+              onChange={(e) => setBirthDate(e.target.value)}
+              autoComplete="bday"
+            />
           </div>
+
           <div className="md:col-span-2">
-            <label>Diagnóstico</label>
-            <input className="input mt-1" value={diagnosis || ''} onChange={e=>setDiagnosis(e.target.value)} />
+            <label htmlFor="diagnosis">Diagnóstico</label>
+            <input
+              id="diagnosis"
+              className="input mt-1"
+              value={diagnosis || ""}
+              onChange={(e) => setDiagnosis(e.target.value)}
+              autoComplete="off"
+            />
           </div>
+
           <div className="md:col-span-2">
-            <label>Notas</label>
-            <textarea className="input mt-1" value={notes || ''} onChange={e=>setNotes(e.target.value)} />
+            <label htmlFor="notes">Notas</label>
+            <textarea
+              id="notes"
+              className="input mt-1"
+              value={notes || ""}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={4}
+            />
           </div>
+
           <div className="md:col-span-2 flex justify-end">
-            <button className="btn btn-primary" onClick={save}>Guardar cambios</button>
+            <button className="btn btn-primary" onClick={save}>
+              Guardar cambios
+            </button>
           </div>
         </div>
       </div>
