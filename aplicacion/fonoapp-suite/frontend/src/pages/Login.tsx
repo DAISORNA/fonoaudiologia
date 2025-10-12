@@ -1,45 +1,49 @@
 // frontend/src/pages/Login.tsx
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Link, useNavigate } from 'react-router-dom'
-import { api } from '../lib/api'
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
 
 const schema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(4, 'Mínimo 4 caracteres'),
-})
-type FormData = z.infer<typeof schema>
+  email: z.string().email("Email inválido"),
+  password: z.string().min(4, "Mínimo 4 caracteres"),
+});
+type FormData = z.infer<typeof schema>;
 
 function getErrorMessage(err: any) {
-  const d = err?.response?.data?.detail
-  if (Array.isArray(d)) return d.map((e: any) => e?.msg ?? JSON.stringify(e)).join(', ')
-  if (typeof d === 'string') return d
-  if (err?.message) return err.message
-  return 'No se pudo iniciar sesión.'
+  const d = err?.response?.data?.detail;
+  if (Array.isArray(d)) return d.map((e: any) => e?.msg ?? JSON.stringify(e)).join(", ");
+  if (typeof d === "string") return d;
+  if (err?.message) return err.message;
+  return "No se pudo iniciar sesión.";
 }
 
 export default function Login() {
-  const nav = useNavigate()
-  const { register, handleSubmit, formState: { errors, isSubmitting } } =
-    useForm<FormData>({ resolver: zodResolver(schema) })
+  const nav = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({ resolver: zodResolver(schema), mode: "onTouched" });
 
   const onSubmit = async (data: FormData) => {
     try {
-      // /auth/login espera form-url-encoded (OAuth2PasswordRequestForm)
-      const form = new URLSearchParams()
-      form.append('username', data.email)
-      form.append('password', data.password)
+      // /auth/login espera OAuth2PasswordRequestForm
+      const form = new URLSearchParams();
+      form.append("username", data.email);
+      form.append("password", data.password);
 
-      const res = await api.post('/auth/login', form, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      })
-      localStorage.setItem('token', res.data.access_token)
-      nav('/app/dashboard')
+      const res = await api.post("/auth/login", form, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+
+      localStorage.setItem("token", res.data.access_token);
+      nav("/app/dashboard");
     } catch (err) {
-      alert(getErrorMessage(err))
+      alert(getErrorMessage(err));
     }
-  }
+  };
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
@@ -63,17 +67,17 @@ export default function Login() {
           <h2 className="text-2xl font-semibold mb-6">Iniciar sesión</h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" autoComplete="off" noValidate>
+            {/* Email */}
             <div>
               <label htmlFor="email">Email</label>
               <input
                 id="email"
-                name="email"
-                className="input mt-1"
                 type="email"
+                className="input mt-1"
                 autoComplete="email"
-                aria-invalid={!!errors.email || undefined}
-                aria-describedby={errors.email ? 'email-error' : undefined}
-                {...register('email')}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                {...register("email")}
               />
               {errors.email && (
                 <p id="email-error" className="text-red-600 text-sm mt-1">
@@ -82,17 +86,17 @@ export default function Login() {
               )}
             </div>
 
+            {/* Password */}
             <div>
               <label htmlFor="password">Contraseña</label>
               <input
                 id="password"
-                name="password"
-                className="input mt-1"
                 type="password"
+                className="input mt-1"
                 autoComplete="current-password"
-                aria-invalid={!!errors.password || undefined}
-                aria-describedby={errors.password ? 'password-error' : undefined}
-                {...register('password')}
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
+                {...register("password")}
               />
               {errors.password && (
                 <p id="password-error" className="text-red-600 text-sm mt-1">
@@ -102,12 +106,12 @@ export default function Login() {
             </div>
 
             <button disabled={isSubmitting} className="btn btn-primary w-full mt-2">
-              {isSubmitting ? 'Entrando…' : 'Entrar'}
+              {isSubmitting ? "Entrando..." : "Entrar"}
             </button>
           </form>
 
           <p className="text-sm text-gray-600 mt-6">
-            ¿No tienes cuenta?{' '}
+            ¿No tienes cuenta?{" "}
             <Link to="/register" className="text-blue-700 hover:underline">
               Crear cuenta
             </Link>
@@ -115,5 +119,5 @@ export default function Login() {
         </div>
       </div>
     </div>
-  )
+  );
 }
