@@ -2,28 +2,35 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type ConnState = "idle" | "connecting" | "open" | "closed";
+type Msg = { id: string; text: string };
 
 const WS_BASE = (import.meta.env.VITE_WS_BASE ?? "").trim() || "/api";
 
 export default function Chat() {
   const [room, setRoom] = useState("lobby");
-  const [list, setList] = useState<string[]>([]);
+  const [list, setList] = useState<Msg[]>([]);
   const [state, setState] = useState<ConnState>("idle");
+
   const inputRef = useRef<HTMLInputElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const retryRef = useRef(0);
   const closedByUsRef = useRef(false);
+  const msgSeqRef = useRef(0);
 
-  // ---- URL del WebSocket (sin ternarios anidados) ----
-  const proto = location.protocol === "https:" ? "wss" : "ws";
-  const isAbsoluteWS = WS_BASE.startsWith("ws"); // ws:// o wss://
-  const wsHostBase = isAbsoluteWS ? WS_BASE : `${proto}://${location.host}${WS_BASE}`;
-  const url = `${wsHostBase}/ws/chat/${encodeURIComponent(room)}`;
+  // ---- URL del WebSocket (evita ternarios anidados) ----
+  const isAbsoluteWs = WS_BASE.startsWith("ws");
+  const wsScheme = location.protocol === "https:" ? "wss" : "ws";
+  const url = isAbsoluteWs
+    ? `${WS_BASE}/ws/chat/${encodeURIComponent(room)}`
+    : `${wsScheme}://${location.host}${WS_BASE}/ws/chat/${encodeURIComponent(room)}`;
 
-  const appendMessage = useCallback((msg: string) => {
-    setList((prev) => [...prev, msg]);
+  // Añadir mensaje con id estable (no usar índice como key)
+  const appendMessage = useCallback((text: string) => {
+    const id = `${Date.now()}-${msgSeqRef.current++}`;
+    setList((prev) => [...prev, { id, text }]);
   }, []);
 
+  // Conexión con reconexión exponencial simple
   const connect = useCallback(() => {
     setState("connecting");
     const ws = new WebSocket(url);
@@ -34,7 +41,9 @@ export default function Chat() {
       setState("open");
     };
 
-    ws.onmessage = (e) => appendMessage(e.data);
+    ws.onmessage = (e) => {
+      appendMessage(e.data);
+    };
 
     ws.onclose = () => {
       setState("closed");
@@ -46,10 +55,11 @@ export default function Chat() {
     };
 
     ws.onerror = () => {
-      // onclose gestiona la reconexión
+      // la reconexión la maneja onclose
     };
   }, [url, appendMessage]);
 
+  // (Re)conectar cuando cambia la sala/URL
   useEffect(() => {
     closedByUsRef.current = false;
     connect();
@@ -63,7 +73,7 @@ export default function Chat() {
     const v = inputRef.current?.value?.trim();
     if (!v || !wsRef.current || state !== "open") return;
     wsRef.current.send(v);
-    if (inputRef.current) inputRef.current.value = "";
+    inputRef.current!.value = "";
   };
 
   return (
@@ -83,8 +93,8 @@ export default function Chat() {
       </div>
 
       <div className="h-64 overflow-auto border rounded-lg p-3 bg-white mb-3">
-        {list.map((m, i) => (
-          <div key={i} className="text-sm py-0.5">• {m}</div>
+        {list.map((m) => (
+          <div key={m.id} className="text-sm py-0.5">• {m.text}</div>
         ))}
       </div>
 
