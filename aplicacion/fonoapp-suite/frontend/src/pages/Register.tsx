@@ -92,66 +92,117 @@ export default function Register() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" autoComplete="off">
             <div>
-              <label>Nombre completo</label>
-              <input className="input mt-1" {...register("full_name")} autoComplete="name" />
+              <label htmlFor="full_name">Nombre completo</label>
+              <input
+                id="full_name"
+                className="input mt-1"
+                autoComplete="name"
+                aria-invalid={!!errors.full_name}
+                aria-describedby={errors.full_name ? "full_name_err" : undefined}
+                {...register("full_name")}
+              />
               {errors.full_name && (
-                <p className="text-red-600 text-sm mt-1">{errors.full_name.message}</p>
+                <p id="full_name_err" className="text-red-600 text-sm mt-1">
+                  {errors.full_name.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label>Email</label>
-              <input className="input mt-1" type="email" {...register("email")} autoComplete="email" />
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                className="input mt-1"
+                type="email"
+                autoComplete="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email_err" : undefined}
+                {...register("email")}
+              />
               {errors.email && (
-                <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+                <p id="email_err" className="text-red-600 text-sm mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label>Contraseña</label>
+              <label htmlFor="password">Contraseña</label>
               <div className="flex gap-2">
                 <input
+                  id="password"
                   className="input mt-1 flex-1"
                   type={showPwd ? "text" : "password"}
-                  {...register("password")}
                   autoComplete="new-password"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? "password_err" : undefined}
+                  {...register("password")}
                 />
-                <button type="button" className="btn mt-1" onClick={() => setShowPwd((v) => !v)}>
+                <button
+                  type="button"
+                  className="btn mt-1"
+                  onClick={() => setShowPwd((v) => !v)}
+                  aria-controls="password"
+                  aria-pressed={showPwd}
+                >
                   {showPwd ? "Ocultar" : "Ver"}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>
+                <p id="password_err" className="text-red-600 text-sm mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label>Repite la contraseña</label>
+              <label htmlFor="passwordConfirm">Repite la contraseña</label>
               <div className="flex gap-2">
                 <input
+                  id="passwordConfirm"
                   className="input mt-1 flex-1"
                   type={showPwd2 ? "text" : "password"}
-                  {...register("passwordConfirm")}
                   autoComplete="new-password"
+                  aria-invalid={!!errors.passwordConfirm}
+                  aria-describedby={errors.passwordConfirm ? "passwordConfirm_err" : undefined}
+                  {...register("passwordConfirm")}
                 />
-                <button type="button" className="btn mt-1" onClick={() => setShowPwd2((v) => !v)}>
+                <button
+                  type="button"
+                  className="btn mt-1"
+                  onClick={() => setShowPwd2((v) => !v)}
+                  aria-controls="passwordConfirm"
+                  aria-pressed={showPwd2}
+                >
                   {showPwd2 ? "Ocultar" : "Ver"}
                 </button>
               </div>
               {errors.passwordConfirm && (
-                <p className="text-red-600 text-sm mt-1">{errors.passwordConfirm.message}</p>
+                <p id="passwordConfirm_err" className="text-red-600 text-sm mt-1">
+                  {errors.passwordConfirm.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label>Rol</label>
-              <select className="input mt-1" {...register("role")}>
+              <label htmlFor="role">Rol</label>
+              <select
+                id="role"
+                className="input mt-1"
+                aria-invalid={!!errors.role}
+                aria-describedby={errors.role ? "role_err" : undefined}
+                {...register("role")}
+              >
                 <option value="therapist">Terapeuta</option>
                 <option value="assistant">Asistente</option>
                 <option value="admin">Administrador</option>
                 <option value="patient">Paciente</option>
               </select>
-              {errors.role && <p className="text-red-600 text-sm mt-1">{errors.role.message}</p>}
+              {errors.role && (
+                <p id="role_err" className="text-red-600 text-sm mt-1">
+                  {errors.role.message}
+                </p>
+              )}
             </div>
 
             <button disabled={isSubmitting} className="btn btn-primary w-full mt-2">
