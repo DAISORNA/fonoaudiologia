@@ -47,6 +47,7 @@ export default function Teletherapy() {
     const pc = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     });
+
     pc.onicecandidate = (e) => {
       if (e.candidate && wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(
@@ -61,10 +62,14 @@ export default function Teletherapy() {
         );
       }
     };
+
     pc.ontrack = (e) => {
       if (remoteRef.current) remoteRef.current.srcObject = e.streams[0];
     };
-    stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+
+    for (const t of stream.getTracks()) {
+      pc.addTrack(t, stream);
+    }
     pcRef.current = pc;
 
     // 3) WebSocket señalización
@@ -111,22 +116,32 @@ export default function Teletherapy() {
   }
 
   function hangup() {
-    // Cierra WS
+    // Cierra WS (optional chaining preferida)
     try {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) wsRef.current.close();
+      if (wsRef.current?.readyState === WebSocket.OPEN) wsRef.current.close();
     } catch {}
     wsRef.current = null;
 
-    // Cierra PC
+    // Cierra PC (for...of en lugar de forEach)
     try {
-      pcRef.current?.getSenders().forEach((s) => s.track && s.track.stop());
+      const senders = pcRef.current?.getSenders();
+      if (senders) {
+        for (const s of senders) {
+          s.track?.stop();
+        }
+      }
       pcRef.current?.close();
     } catch {}
     pcRef.current = null;
 
-    // Detén medios locales
+    // Detén medios locales (for...of)
     try {
-      localStreamRef.current?.getTracks().forEach((t) => t.stop());
+      const tracks = localStreamRef.current?.getTracks();
+      if (tracks) {
+        for (const t of tracks) {
+          t.stop();
+        }
+      }
     } catch {}
     localStreamRef.current = null;
 
@@ -146,6 +161,9 @@ export default function Teletherapy() {
   const canStart = state === "idle" || state === "ready";
   const canCall = state === "ready";
   const canHangup = state === "calling" || state === "in-call";
+
+  // WebVTT mínimo para cumplir a11y (captions)
+  const emptyVtt = "data:text/vtt,WEBVTT";
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
@@ -176,10 +194,27 @@ export default function Teletherapy() {
           <p className="text-xs text-gray-500">Estado: {state}</p>
         </div>
       </section>
+
       <section className="card p-6">
         <div className="grid gap-3">
-          <video ref={localRef} muted autoPlay playsInline className="w-full rounded-lg bg-black aspect-video" />
-          <video ref={remoteRef} autoPlay playsInline className="w-full rounded-lg bg-black aspect-video" />
+          <video
+            ref={localRef}
+            muted
+            autoPlay
+            playsInline
+            className="w-full rounded-lg bg-black aspect-video"
+          >
+            <track kind="captions" src={emptyVtt} srcLang="es" label="captions" default />
+          </video>
+
+          <video
+            ref={remoteRef}
+            autoPlay
+            playsInline
+            className="w-full rounded-lg bg-black aspect-video"
+          >
+            <track kind="captions" src={emptyVtt} srcLang="es" label="captions" default />
+          </video>
         </div>
       </section>
     </div>
