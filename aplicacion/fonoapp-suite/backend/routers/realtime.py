@@ -19,9 +19,15 @@ class ConnectionManager:
                 self.rooms.pop(room, None)
 
     async def broadcast(self, room: str, message: str, sender: WebSocket | None = None):
-        for conn in list(self.rooms.get(room, [])):
-            if conn is not sender:
+        # Snapshot para evitar "list changed size during iteration" si alguien se desconecta
+        for conn in self.rooms.get(room, [])[:]:
+            if conn is sender:
+                continue
+            try:
                 await conn.send_text(message)
+            except Exception:
+                # limpia conexiones caídas
+                self.disconnect(room, conn)
 
 manager = ConnectionManager()
 
