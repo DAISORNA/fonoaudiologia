@@ -130,7 +130,12 @@ export default function Patients() {
       <section className="card p-6">
         <h2 className="text-lg font-semibold mb-4">Buscar pacientes</h2>
         <div className="grid md:grid-cols-6 gap-3">
-          <input className="input md:col-span-2" placeholder="Nombre / Apellido / Diagnóstico / Cédula" value={q} onChange={e=>setQ(e.target.value)} />
+          <input
+            className="input md:col-span-2"
+            placeholder="Nombre / Apellido / Diagnóstico / Cédula"
+            value={q}
+            onChange={e=>setQ(e.target.value)}
+          />
           <input className="input" placeholder="Cédula" value={cedula} onChange={e=>setCedula(e.target.value)} />
           <input className="input" placeholder="Diagnóstico" value={diagnosis} onChange={e=>setDiagnosis(e.target.value)} />
           <input className="input" type="date" value={birthFrom} onChange={e=>setBirthFrom(e.target.value)} />
@@ -138,17 +143,37 @@ export default function Patients() {
           <select className="input" value={sort} onChange={e=>setSort(e.target.value as any)}>
             {SORT_OPTIONS.map(o=> <option key={o.v} value={o.v}>{o.label}</option>)}
           </select>
-          <select className="input" value={limit} onChange={e=>{ setLimit(Number(e.target.value)); setOffset(0); }}>
+          <select
+            className="input"
+            value={limit}
+            onChange={e=>{ setLimit(Number(e.target.value)); setOffset(0); }}
+          >
             {[10,20,50,100].map(n=> <option key={n} value={n}>{n} / pág.</option>)}
           </select>
+
           {isAdmin && (
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={includeDeleted} onChange={e=>{ setIncludeDeleted(e.target.checked); setOffset(0); }} />
-              Incluir eliminados
+            <label className="flex items-center gap-2 text-sm" htmlFor="includeDeleted">
+              <input
+                id="includeDeleted"
+                type="checkbox"
+                checked={includeDeleted}
+                onChange={(e) => { setIncludeDeleted(e.target.checked); setOffset(0); }}
+              />
+              <span>Incluir eliminados</span>
             </label>
           )}
+
           <div className="md:col-span-6 flex gap-2 justify-end">
-            <button className="btn" onClick={()=>{ setQ(''); setCedula(''); setDiagnosis(''); setBirthFrom(''); setBirthTo(''); setSort('-created_at'); setOffset(0); }}>Limpiar</button>
+            <button
+              className="btn"
+              onClick={()=>{
+                setQ(''); setCedula(''); setDiagnosis('');
+                setBirthFrom(''); setBirthTo('');
+                setSort('-created_at'); setOffset(0);
+              }}
+            >
+              Limpiar
+            </button>
             <button className="btn btn-primary" onClick={load}>Buscar</button>
           </div>
         </div>
@@ -158,12 +183,43 @@ export default function Patients() {
       <section className="card p-6">
         <h2 className="text-lg font-semibold mb-4">Nuevo paciente</h2>
         <div className="grid md:grid-cols-6 gap-3">
-          <input className="input" placeholder="Nombre" value={form.first_name} onChange={e=>setForm({...form, first_name:e.target.value})}/>
-          <input className="input" placeholder="Apellido" value={form.last_name} onChange={e=>setForm({...form, last_name:e.target.value})}/>
-          <input className="input" placeholder="Cédula" value={form.cedula||''} onChange={e=>setForm({...form, cedula:e.target.value})}/>
-          <input className="input" type="date" placeholder="Nacimiento" value={form.birth_date||''} onChange={e=>setForm({...form, birth_date:e.target.value})}/>
-          <input className="input md:col-span-2" placeholder="Diagnóstico" value={form.diagnosis||''} onChange={e=>setForm({...form, diagnosis:e.target.value})}/>
-          <textarea className="input md:col-span-6" placeholder="Notas" value={form.notes||''} onChange={e=>setForm({...form, notes:e.target.value})}/>
+          <input
+            className="input"
+            placeholder="Nombre"
+            value={form.first_name}
+            onChange={e=>setForm({...form, first_name:e.target.value})}
+          />
+          <input
+            className="input"
+            placeholder="Apellido"
+            value={form.last_name}
+            onChange={e=>setForm({...form, last_name:e.target.value})}
+          />
+          <input
+            className="input"
+            placeholder="Cédula"
+            value={form.cedula||''}
+            onChange={e=>setForm({...form, cedula:e.target.value})}
+          />
+          <input
+            className="input"
+            type="date"
+            placeholder="Nacimiento"
+            value={form.birth_date||''}
+            onChange={e=>setForm({...form, birth_date:e.target.value})}
+          />
+          <input
+            className="input md:col-span-2"
+            placeholder="Diagnóstico"
+            value={form.diagnosis||''}
+            onChange={e=>setForm({...form, diagnosis:e.target.value})}
+          />
+          <textarea
+            className="input md:col-span-6"
+            placeholder="Notas"
+            value={form.notes||''}
+            onChange={e=>setForm({...form, notes:e.target.value})}
+          />
           <div className="md:col-span-6 flex justify-end">
             <button className="btn btn-primary" onClick={create}>Guardar</button>
           </div>
@@ -173,7 +229,9 @@ export default function Patients() {
       {/* Lista */}
       <section className="card p-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Pacientes {loading && <span className="text-sm text-gray-500">cargando…</span>}</h2>
+          <h2 className="text-lg font-semibold">
+            Pacientes {loading && <span className="text-sm text-gray-500">cargando…</span>}
+          </h2>
           <div className="flex items-center gap-2">
             <button className="btn" disabled={offset===0} onClick={()=>setOffset(Math.max(0, offset - limit))}>←</button>
             <span className="text-sm text-gray-600">offset {offset}</span>
