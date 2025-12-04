@@ -1,0 +1,44 @@
+name: SonarCloud with Coverage
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd aplicacion/fonoapp-suite
+          pip install -r requirements.txt
+          pip install coverage pytest
+
+      - name: Run tests with coverage
+        run: |
+          cd aplicacion/fonoapp-suite
+          coverage erase
+          coverage run -m pytest backend
+          coverage xml
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: aplicacion/fonoapp-suite
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
