@@ -6,7 +6,7 @@ Permite a profesionales y equipos multidisciplinarios administrar pacientes, ses
 Incluye autenticación con roles (admin, terapeuta, asistente, paciente) y está construida con tecnologías modernas para garantizar seguridad, escalabilidad y una experiencia de usuario fluida.
 
 
-🚀 -Funcionalidades principales
+🚀 Funcionalidades principales
 
 --Autenticación y roles
     Registro e inicio de sesión con control de accesos según rol asignado.
